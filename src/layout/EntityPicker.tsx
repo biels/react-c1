@@ -59,7 +59,7 @@ class EntityPicker extends Component<EntityPickerProps> {
                                 renderMasterView={() => this.props.renderMasterView({ entity })}
                                 renderDetailView={({ entity }) => {
                                     return <PickerDetailContainer>
-                                        {this.props.renderDetailView({ entity })}
+                                        {this.props.renderDetailView && this.props.renderDetailView({ entity })}
                                         <PickerDetailFooterContainer>
                                             <Button onClick={handleClose}>Cancelar</Button>
                                             <Button

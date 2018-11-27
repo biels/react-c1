@@ -42,7 +42,7 @@ class MasterDetailView extends Component<MasterDetailViewProps> {
                     {this.props.renderMasterView({ entity: masterEntity })}
                     <Entity fetchPolicy={this.props.detailFetchPolicy || this.props.fetchPolicy} query={this.props.query}>
                         {(detailEntity) => {
-                            return this.props.renderDetailView({ entity: detailEntity });
+                            return this.props.renderDetailView ? this.props.renderDetailView({ entity: detailEntity }) : null;
                         }}
                     </Entity>
                 </Container>;

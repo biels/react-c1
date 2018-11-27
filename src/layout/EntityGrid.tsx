@@ -259,10 +259,10 @@ class EntityGrid extends Component<EntityGridProps> {
                                                                 onChange={this.handleFilterChange(entity)}
                                                                 placeholder={'Buscar en todo...'}
                                                                 value={entity.entityState.filter || ''}/>,
-                                customFilterElement: this.props.renderCustomFilterBar({
+                                customFilterElement: this.props.renderCustomFilterBar ? this.props.renderCustomFilterBar({
                                     onChangeFilter: this.handleExternalFilterChange(entity),
                                     filter: this.props.externalFilter || this.props.defaultExternalFilter,
-                                }),
+                                }) : null,
                                 removeFiltersElement: <Button disabled={disabled} icon={'filter-remove'}
                                                               onClick={this.handleClearFilters(entity)}>Quitar
                                     filtros</Button>,
