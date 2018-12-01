@@ -139,7 +139,7 @@ class EntityGrid extends Component<EntityGridProps> {
     };
     doesExternalFilterPass = (entity: EntityRenderProps) => (node) => {
         const externalFilter = this.props.externalFilter || this.props.defaultExternalFilter;
-        return this.props.doesExternalFilterPass(externalFilter, node);
+        return this.props.doesExternalFilterPass ? this.props.doesExternalFilterPass(externalFilter, node) : true;
     };
     handleGridReady = (entity: EntityRenderProps) => ({ api }) => {
         this.gridApi = api;
@@ -181,6 +181,7 @@ class EntityGrid extends Component<EntityGridProps> {
 
     render() {
         const C = this.props.containerComponent; // TODO Pick styles from ClientsGrid
+
         return <C>
             <ErrorBoundary>
                 <Entity name={this.props.name} relation={this.props.relation}
@@ -199,7 +200,7 @@ class EntityGrid extends Component<EntityGridProps> {
                         }
                         const defaultActions = [
                             {
-                                name: 'referesh',
+                                name: 'refresh',
                                 iconName: 'refresh',
                                 text: 'Refrescar',
                                 callback: () => entity.refetch(),
@@ -207,15 +208,15 @@ class EntityGrid extends Component<EntityGridProps> {
                             {
                                 name: 'open',
                                 iconName: 'edit',
-                                text: 'Detalles / Editar',
+                                text: 'Details / Edit',
                                 callback: () => entity.openInOwnPage(entity.selectedItem.id as number, {}, true),
                             },
                             {
-                                name: 'nuevo',
+                                name: 'new',
                                 iconName: 'document',
                                 text: 'Nuevo elemento',
                                 callback: () => toaster.show({
-                                    message: 'Acción Nuevo aún no disponible',
+                                    message: 'Not implemented',
                                     icon: 'info-sign',
                                 }),
                             },
@@ -225,20 +226,24 @@ class EntityGrid extends Component<EntityGridProps> {
                                 text: 'Eliminar',
                                 callback: entity.removeSelected,
                                 confirmation: true,
-                                confirmationText: `¿Está seguro que desea eliminar este elemento?`,
+                                confirmationText: `¿Are you sure you want to remove this item?`,
                             },
                         ];
                         // TODO Merge action one by one, using templates by name, setting all non specified properties to the template ones.
                         let providedActions = this.props.actions;
                         if (_.isFunction(providedActions)) providedActions = providedActions(entity);
-                        const actions = providedActions.map(pa => Object.assign({}, defaultActions.find(da => da.name === pa.name), pa));
-
+                        const actions = providedActions.map(pa => {
+                            let foundAction = defaultActions.find(da => da.name === pa.name);
+                            console.log(`foundACtion`, foundAction);
+                            return Object.assign({}, foundAction, pa);
+                        });
+                        const isCreateImplemented: boolean = actions.map(a => a.name).includes('new')
 
                         const selectionActions: Action[] = [
                             {
                                 name: 'selectAll',
                                 iconName: 'select',
-                                text: this.props.selectAllText || 'Seleccionar todos',
+                                text: this.props.selectAllText || 'Seleccionar tots',
                                 callback: () =>{
                                     if(!_.isArray(entity.items)) return;
                                     entity.selectIds(entity.items.filter(this.props.selectAllFilter || (() => true)).map(it => it.id as number), null, true)
@@ -247,7 +252,7 @@ class EntityGrid extends Component<EntityGridProps> {
                             {
                                 name: 'unselectAll',
                                 iconName: 'small-cross',
-                                text: 'Limpiar selección',
+                                text: 'Netejar selecció',
                                 callback: () => entity.selectIds([], null, true),
                             },
                         ];
@@ -257,15 +262,14 @@ class EntityGrid extends Component<EntityGridProps> {
                             {this.props.renderHeader({
                                 searchFieldElement: <InputGroup leftIcon={'search'}
                                                                 onChange={this.handleFilterChange(entity)}
-                                                                placeholder={'Buscar en todo...'}
+                                                                placeholder={'Cerca per qualsevol camp...'}
                                                                 value={entity.entityState.filter || ''}/>,
                                 customFilterElement: this.props.renderCustomFilterBar ? this.props.renderCustomFilterBar({
                                     onChangeFilter: this.handleExternalFilterChange(entity),
                                     filter: this.props.externalFilter || this.props.defaultExternalFilter,
                                 }) : null,
                                 removeFiltersElement: <Button disabled={disabled} icon={'filter-remove'}
-                                                              onClick={this.handleClearFilters(entity)}>Quitar
-                                    filtros</Button>,
+                                                              onClick={this.handleClearFilters(entity)}>Neteja filtres</Button>,
                             })}
                             <GridHeaderArea>
 
