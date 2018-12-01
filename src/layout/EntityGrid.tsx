@@ -1,15 +1,16 @@
-import React, { Component, ComponentType, Ref } from 'react';
+import React, {Component, ComponentType, Ref} from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
-import Entity, { EntityProps, EntityRenderProps } from 'react-entity-plane/lib/Entity';
-import { EntityInfoKey } from 'react-entity-plane/lib/types/entities';
-import { Action } from '../page-templates/components/PageHeader/components/ActionArea';
-import { Button, InputGroup } from '@blueprintjs/core';
-import { AgGridReact, AgGridReactProps } from 'ag-grid-react';
+import Entity, {EntityProps, EntityRenderProps} from 'react-entity-plane/lib/Entity';
+import {EntityInfoKey} from 'react-entity-plane/lib/types/entities';
+import {Action} from '../page-templates/components/PageHeader/components/ActionArea';
+import {Button, getKeyComboString, InputGroup} from '@blueprintjs/core';
+import {AgGridReact, AgGridReactProps} from 'ag-grid-react';
 import Actions from '../page-templates/Actions/Actions';
-import { toaster } from '../application/toaster';
-import { AgGridEvent, GridApi, RowClickedEvent, RowNode, RowSelectedEvent } from 'ag-grid-community';
+import {AgGridEvent, GridApi, RowClickedEvent, RowNode, RowSelectedEvent} from 'ag-grid-community';
 import ErrorBoundary from '../page-templates/ErrorBoundary';
+import GenericDialog from "./GenericDialog";
+import {toaster} from "../index";
 
 // const OldContainer = styled.div`
 //     height: 100%;
@@ -82,7 +83,7 @@ export interface EntityGridProps {
     relation?: string;
     query?: string;
     containerComponent?: ComponentType<any>;
-    renderHeader?: ({ searchFieldElement, customFilterElement, removeFiltersElement }) => any;
+    renderHeader?: ({searchFieldElement, customFilterElement, removeFiltersElement}) => any;
     renderFooter?: (props: EntityGridRenderProps) => any;
     actions?: Partial<Action>[] | ((entity: EntityRenderProps) => Partial<Action>[]);
     renderCustomFilterBar?: (props: CustomFilterBarRenderProps) => any
@@ -104,11 +105,14 @@ export interface EntityGridProps {
     selectAllFilter: (it) => boolean
     selectAllText: string
 }
+
 let gridId = 0;
+
+
 class EntityGrid extends Component<EntityGridProps> {
     static defaultProps: Partial<EntityGridProps> = {
         containerComponent: Container,
-        renderHeader: ({ searchFieldElement, customFilterElement, removeFiltersElement }) => {
+        renderHeader: ({searchFieldElement, customFilterElement, removeFiltersElement}) => {
             return <GridHeaderArea>
                 {searchFieldElement}
                 {customFilterElement}
@@ -118,6 +122,9 @@ class EntityGrid extends Component<EntityGridProps> {
         height: '75vh',
         baseNegativeOffset: 70,
     };
+    state = {
+        creationDialogOpen: false
+    }
     // state = {
     //   customFilter: this.props.neutralFilter,
     //   gridKey: 0,
@@ -125,6 +132,7 @@ class EntityGrid extends Component<EntityGridProps> {
     gridRef: Ref<AgGridReact> = React.createRef();
     gridApi: GridApi = null;
     gridId: number = 0;
+
     componentDidMount(): void {
         this.gridId = gridId++;
     }
@@ -141,14 +149,14 @@ class EntityGrid extends Component<EntityGridProps> {
         const externalFilter = this.props.externalFilter || this.props.defaultExternalFilter;
         return this.props.doesExternalFilterPass ? this.props.doesExternalFilterPass(externalFilter, node) : true;
     };
-    handleGridReady = (entity: EntityRenderProps) => ({ api }) => {
+    handleGridReady = (entity: EntityRenderProps) => ({api}) => {
         this.gridApi = api;
     };
     handleCellValueChange = (cellValue) => {
         // console.warn('WWWW handleCellValueChange', cellValue);
     };
     handleFilterChange = (entity: EntityRenderProps) => (e) => {
-        entity.setEntityState({ filter: e.target.value });
+        entity.setEntityState({filter: e.target.value});
         this.gridApi.setQuickFilter(e.target.value);
         // setTimeout();
     };
@@ -174,11 +182,11 @@ class EntityGrid extends Component<EntityGridProps> {
         this.gridApi.setQuickFilter(null);
     };
 
+
     // shouldComponentUpdate(newProps, newState) {
     //     // if() return false;
     //     return _.isEqual(this.props, newProps);
     // }
-
     render() {
         const C = this.props.containerComponent; // TODO Pick styles from ClientsGrid
 
@@ -188,6 +196,7 @@ class EntityGrid extends Component<EntityGridProps> {
                         fetchPolicy={this.props.fetchPolicy}
                         query={this.props.query} poll={this.props.poll}>
                     {(entity: EntityRenderProps) => {
+
                         const footer = this.props.renderFooter && this.props.renderFooter({
                             gridApi: this.gridApi,
                             entity,
@@ -196,8 +205,27 @@ class EntityGrid extends Component<EntityGridProps> {
                         const handleGridReadyWithEntity = this.handleGridReady(entity);
                         const getEntityState = () => entity.entityState;
                         if (entity.entityState.filter === undefined || entity.entityState.customFilter === undefined) {
-                            entity.setEntityState({ filter: '' }, false);
+                            entity.setEntityState({filter: ''}, false);
                         }
+                        let CreationComponent = _.get(entity.entityInfo, 'components.create');
+
+                        const creationCallback = () => {
+                            if (CreationComponent != null) {
+                                this.setState({creationDialogOpen: true})
+                            } else {
+                                toaster.show({
+                                    message: 'There is no default creation component on ' + entity.entityInfo.name,
+                                    icon: 'info-sign',
+                                });
+                            }
+
+                        };
+                        const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+                            const combo = getKeyComboString(e.nativeEvent as KeyboardEvent);
+                            if(CreationComponent != null && combo === 'alt + ins'){
+                                creationCallback();
+                            }
+                        };
                         const defaultActions = [
                             {
                                 name: 'refresh',
@@ -214,11 +242,8 @@ class EntityGrid extends Component<EntityGridProps> {
                             {
                                 name: 'new',
                                 iconName: 'document',
-                                text: 'Nuevo elemento',
-                                callback: () => toaster.show({
-                                    message: 'Not implemented',
-                                    icon: 'info-sign',
-                                }),
+                                text: `Nou ${entity.entityInfo.display.singular}`,
+                                callback: creationCallback,
                             },
                             {
                                 name: 'remove',
@@ -226,7 +251,7 @@ class EntityGrid extends Component<EntityGridProps> {
                                 text: 'Eliminar',
                                 callback: entity.removeSelected,
                                 confirmation: true,
-                                confirmationText: `¿Are you sure you want to remove this item?`,
+                                confirmationText: `¿Estàs segur que vols eliminar aquest ${entity.entityInfo.display.singular}?`,
                             },
                         ];
                         // TODO Merge action one by one, using templates by name, setting all non specified properties to the template ones.
@@ -244,8 +269,8 @@ class EntityGrid extends Component<EntityGridProps> {
                                 name: 'selectAll',
                                 iconName: 'select',
                                 text: this.props.selectAllText || 'Seleccionar tots',
-                                callback: () =>{
-                                    if(!_.isArray(entity.items)) return;
+                                callback: () => {
+                                    if (!_.isArray(entity.items)) return;
                                     entity.selectIds(entity.items.filter(this.props.selectAllFilter || (() => true)).map(it => it.id as number), null, true)
                                 },
                             },
@@ -257,8 +282,22 @@ class EntityGrid extends Component<EntityGridProps> {
                             },
                         ];
                         let columnDefs = this.props.columnDefs;
-                        if(_.isFunction(columnDefs)) columnDefs = columnDefs(entity);
-                        return <Container>
+                        if (_.isFunction(columnDefs)) columnDefs = columnDefs(entity);
+
+
+                        let creationDialog;
+                        if (CreationComponent != null && isCreateImplemented) {
+                            const handleCreationDialogClose = () => {
+                                this.setState({creationDialogOpen: false})
+                            }
+                            creationDialog = <GenericDialog
+                                title={'Nou ' + entity.entityInfo.display.singular}
+                                isOpen={this.state.creationDialogOpen}
+                                onClose={handleCreationDialogClose}>
+                                <CreationComponent entity={entity} onSubmit={handleCreationDialogClose}/>
+                            </GenericDialog>
+                        }
+                        return <Container onKeyDown={handleKeyDown}>
                             {this.props.renderHeader({
                                 searchFieldElement: <InputGroup leftIcon={'search'}
                                                                 onChange={this.handleFilterChange(entity)}
@@ -269,7 +308,8 @@ class EntityGrid extends Component<EntityGridProps> {
                                     filter: this.props.externalFilter || this.props.defaultExternalFilter,
                                 }) : null,
                                 removeFiltersElement: <Button disabled={disabled} icon={'filter-remove'}
-                                                              onClick={this.handleClearFilters(entity)}>Neteja filtres</Button>,
+                                                              onClick={this.handleClearFilters(entity)}>Neteja
+                                    filtres</Button>,
                             })}
                             <GridHeaderArea>
 
@@ -291,6 +331,9 @@ class EntityGrid extends Component<EntityGridProps> {
                                         noText={true}
                                         vertical={true}
                                     />
+                                    {/* Floating dialogs */}
+                                    {creationDialog}
+
                                     {/*<div>ID: {this.gridId}</div>
                                     <div>Idx: {entity.selectedIndex}</div>
                                     <div>Idxs: {entity.selectedIndexes.toString()}</div>
@@ -359,9 +402,11 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
     interval = null;
     modifiedLocally = false;
     touched: number[] = [];
+
     componentDidMount(): void {
         this.interval = setInterval(this.updateBothWays, 45);
     }
+
     componentWillUnmount(): void {
         clearInterval(this.interval);
     }
@@ -408,13 +453,14 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
         if (this.isBlocked()) return;
         this.updateIn();
     }
+
     // TODO Timer based approach w/ modified flag?
     updateBothWays = () => {
         let touchedSnapshot = _.clone(this.touched)
         const modifiedLocally = this.touched.length > 0;
-        if(modifiedLocally){
+        if (modifiedLocally) {
             this.updateOut(null);
-        }else{
+        } else {
             this.updateIn()
         }
         this.touched.length = 0;
@@ -502,8 +548,8 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
                     this.modifiedLocally = true;
                     this.touched.push(e.data.id);
                     if (this.isBlocked()) return;
-                   // console.log(`onRowSelected`, e);
-                   // this.updateOut(e.data.id);
+                    // console.log(`onRowSelected`, e);
+                    // this.updateOut(e.data.id);
                     // // if(this.gridApi.getSelectedNodes().length > 1) return;
                     // let ids = this.gridApi.getSelectedNodes().map(node => _.get(node.data, 'id'));
                     // this.props.entity.selectIds(ids, true);
