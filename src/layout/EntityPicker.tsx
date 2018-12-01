@@ -4,6 +4,7 @@ import Entity, { EntityRenderProps } from 'react-entity-plane/lib/Entity';
 import { EntityInfoKey } from 'react-entity-plane/lib/types/entities';
 import { Button, Dialog, Intent } from '@blueprintjs/core';
 import MasterDetailView, { MasterDetailViewProps } from './MasterDetailView';
+import GenericDialog from "./GenericDialog";
 
 const OuterContainer = styled.div`
     > div {
@@ -48,10 +49,7 @@ class EntityPicker extends Component<EntityPickerProps> {
                     this.props.onPick(item);
                 };
                 return <OuterContainer>
-                    <Dialog
-                        className={'full-width'}
-                        lazy={false}
-                        usePortal={true}
+                    <GenericDialog
                         title={`Seleccione un elemento`}
                         isOpen={this.props.isOpen} onClose={handleClose}>
                         <Container>
@@ -73,7 +71,7 @@ class EntityPicker extends Component<EntityPickerProps> {
                                 }}
                             />
                         </Container>
-                    </Dialog>
+                    </GenericDialog>
                 </OuterContainer>;
             }}
         </Entity>;
