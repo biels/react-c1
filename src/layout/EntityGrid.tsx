@@ -223,6 +223,8 @@ class EntityGrid extends Component<EntityGridProps> {
                         const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
                             const combo = getKeyComboString(e.nativeEvent as KeyboardEvent);
                             if(CreationComponent != null && combo === 'alt + ins'){
+                                e.preventDefault();
+                                e.stopPropagation();
                                 creationCallback();
                             }
                         };
