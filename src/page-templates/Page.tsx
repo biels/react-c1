@@ -1,14 +1,18 @@
-import React, { Component, ReactNode, SyntheticEvent } from 'react';
+import React, {Component, ReactNode, SyntheticEvent} from 'react';
 import styled from 'styled-components';
-import PageHeader, { PageHeaderProps } from './components/PageHeader/PageHeader';
+import PageHeader, {PageHeaderProps} from './components/PageHeader/PageHeader';
 
 
 import PageContextSpy from 'react-navigation-plane/lib/PageContext/PageContextSpy';
 import InstanceTitle from 'react-navigation-plane/lib/utils/InstanceTitle';
-import { EntityContextProvider } from 'react-entity-plane/lib/EntityContext';
-import { EntityPlaneInfo } from 'react-entity-plane/lib/types/EntityPlaneInfo';
+import {EntityContextProvider} from 'react-entity-plane/lib/EntityContext';
+import {EntityPlaneInfo} from 'react-entity-plane/lib/types/EntityPlaneInfo';
 import ErrorBoundary from './ErrorBoundary';
-import { ProvidedPageContext } from 'react-navigation-plane/lib/PageContext/PageContext';
+import {ProvidedPageContext} from 'react-navigation-plane/lib/PageContext/PageContext';
+import {ProvidedNavigationContext} from "react-navigation-plane/lib/NavigationContext/NavigationContext";
+import {getKeyComboString} from "@blueprintjs/core";
+import * as _ from 'lodash';
+import {toaster} from "../index";
 
 const Container = styled.div`
     display: grid;
@@ -42,15 +46,31 @@ class Page extends Component<BasicPageProps> {
         renderCustomHeaderArea: () => null,
         actions: []
     };
-    state = { hasError: false };
+    state = {hasError: false};
 
-    handleBackClick(e: SyntheticEvent) {
+    handleMouseDown = (back: ProvidedNavigationContext['back']) => (e: MouseEvent) => {
         // Navigation go back
+        if (_.isFunction(back) && e.button === 3) {
+            e.preventDefault();
+            e.stopPropagation();
+            history.pushState(null, document.title, location.href);
+            back()
+        }
+    }
+    handleKeyDown = (back) => (e: React.KeyboardEvent<HTMLDivElement>) => {
+        // Navigation go back
+        const combo = getKeyComboString(e.nativeEvent as KeyboardEvent);
+        if(_.isFunction(back) && combo === 'alt + left'){
+            e.preventDefault();
+            e.stopPropagation();
+            history.pushState(null, document.title, location.href);
+            back()
+        }
     }
 
     componentDidCatch(error, info) {
         // Display fallback UI
-        this.setState({ hasError: true });
+        this.setState({hasError: true});
         console.log('Error: ', error, info);
         // You can also log the error to an error reporting service
         // logErrorToMyService(error, info);
@@ -63,7 +83,7 @@ class Page extends Component<BasicPageProps> {
                 {(pageContext) => {
                     return <EntityContextProvider entityPlaneInfo={this.props.entityPlane}
                                                   rootEntityId={pageContext.args.entityId}>
-                        <Container onClick={this.handleBackClick}>
+                        <Container onMouseDown={this.handleMouseDown(pageContext.back)} tabIndex="0" onKeyDown={this.handleKeyDown(pageContext.back)}>
                             <InstanceTitle title={this.props.caption(this.props.title, this.props.subtitle)}/>
                             <PageHeader title={this.props.title} subtitle={this.props.subtitle}
                                         actions={this.props.actions}
