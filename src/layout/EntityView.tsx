@@ -6,6 +6,7 @@ import {Action} from "../page-templates/components/PageHeader/components/ActionA
 import {FormApi} from "final-form";
 import EntityField from "./EntityField";
 import {EntityFieldInfo} from "react-entity-plane/lib/types/fieldsInfo";
+import FormAutoSave from "./FormAutoSave";
 
 
 
@@ -44,10 +45,15 @@ export interface EntityViewProps {
 class EntityView extends Component<EntityViewProps> {
     static defaultProps: Partial<EntityViewProps> = {
         onSubmit: (entity, values, mode) => {
-            console.log(`Creating!!`, mode);
+            console.log(`Submitting`, mode);
             if (mode === 'editing') {
-                entity.updateEditing(values)
-                entity.cancelEdition()
+                if(!entity.selectedItem) {
+                    console.log(`Tried to edit an entity without selection`);
+                    return
+                }
+                console.log(`E`, entity.items);
+                entity.updateId(entity.selectedItem.id, values)
+                // entity.cancelEdition()
             }
             if (mode === 'creating') {
                 entity.create(values)
@@ -58,6 +64,7 @@ class EntityView extends Component<EntityViewProps> {
 
     render() {
         let renderWithEntity = (entity: EntityRenderProps) => {
+            if(entity == null) return <div>No entity provided</div>;
             const renderWithWrapper = (inner, form?) => {
                 if (this.props.wrapper != null) {
                     const Wrapper = this.props.wrapper
@@ -95,17 +102,18 @@ class EntityView extends Component<EntityViewProps> {
                 };
                 let fieldNames = entity.entityInfo.fields.map(f => f.name);
                 let initialValues = {};
-                if (editing) initialValues = _.pick(entity.items[entity.editingIndex], fieldNames);
+                if (editing) initialValues = _.pick(entity.selectedItem, fieldNames);
+                console.log(`IniV`, initialValues);
                 if (creating) initialValues = entity.entityInfo.fields
                     .map(f => (f.default != null ? {[f.name]: f.default} : {}))
                     .reduce((o1, o2) => Object.assign(o1, o2), {})
                 return <Form onSubmit={handleSubmit}
                              initialValues={initialValues}
-
                 >
                     {(form) => {
                         if(this.props.onSubmitReady)this.props.onSubmitReady(form.handleSubmit)
                         return <form onSubmit={form.handleSubmit}>
+                            {!creating && <FormAutoSave debounce={100} values={form.values} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
                             <button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={true}>Hidden submit</button>
                         </form>
@@ -115,11 +123,13 @@ class EntityView extends Component<EntityViewProps> {
                 return renderWithWrapper(this.props.children(entity, mode, field(false)))
             }
         };
-        return this.props.entity ? (
-                <Entity name={this.props.name} relation={this.props.relation} root={this.props.root}>
-                    {(entity) => renderWithEntity(entity)}
-                </Entity>)
-            : renderWithEntity(this.props.entity)
+        if (!this.props.entity) {
+            return <Entity name={this.props.name} relation={this.props.relation} root={this.props.root}>
+                {(entity) => renderWithEntity(entity)}
+            </Entity>
+        } else {
+            return renderWithEntity(this.props.entity)
+        }
     }
 }
 

@@ -63,6 +63,7 @@
     "ag-grid-react": "^19.1.2",
     "deep-object-diff": "^1.1.0",
     "final-form": "^4.11.0",
+    "object-diff": "^0.0.4",
     "react-entity-plane": "^0.8.0",
     "react-final-form": "^4.0.2",
     "react-final-form-listeners": "^1.0.1",
