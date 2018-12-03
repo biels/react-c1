@@ -4,7 +4,7 @@ import _ from 'lodash';
 import Entity, {EntityProps, EntityRenderProps} from 'react-entity-plane/lib/Entity';
 import {EntityInfoKey} from 'react-entity-plane/lib/types/entities';
 import {Action} from '../page-templates/components/PageHeader/components/ActionArea';
-import {Button, getKeyComboString, InputGroup} from '@blueprintjs/core';
+import {Button, getKeyComboString, InputGroup, Intent} from '@blueprintjs/core';
 import {AgGridReact, AgGridReactProps} from 'ag-grid-react';
 import Actions from '../page-templates/Actions/Actions';
 import {AgGridEvent, GridApi, RowClickedEvent, RowNode, RowSelectedEvent} from 'ag-grid-community';
@@ -261,7 +261,6 @@ class EntityGrid extends Component<EntityGridProps> {
                         if (_.isFunction(providedActions)) providedActions = providedActions(entity);
                         const actions = providedActions.map(pa => {
                             let foundAction = defaultActions.find(da => da.name === pa.name);
-                            console.log(`foundACtion`, foundAction);
                             return Object.assign({}, foundAction, pa);
                         });
                         const isCreateImplemented: boolean = actions.map(a => a.name).includes('new')
@@ -293,9 +292,27 @@ class EntityGrid extends Component<EntityGridProps> {
                                 this.setState({creationDialogOpen: false})
                             }
                             creationDialog = <GenericDialog
-                                title={'Nou ' + entity.entityInfo.display.singular}
+                                title={'Nou ' + entity.entityInfo.display.singular.toLowerCase()}
                                 isOpen={this.state.creationDialogOpen}
-                                onClose={handleCreationDialogClose}>
+                                onClose={handleCreationDialogClose}
+                                buttons={[
+                                    {
+                                        text: 'Cancelar',
+                                        onClick: handleCreationDialogClose
+                                    }, {
+                                        text: 'Crear ' + entity.entityInfo.display.singular.toLowerCase(),
+                                        intent: Intent.PRIMARY,
+                                        onClick: () => {
+                                            let elementById = document.getElementById('submit-new-' + entity.entityInfo.name);
+                                            if(elementById){
+                                                elementById.click();
+                                            }else {
+                                                toaster.show({message: 'Could not find target submit button'})
+                                            }
+                                        }
+                                    },
+                                ]}
+                            >
                                 <CreationComponent entity={entity} onSubmit={handleCreationDialogClose}/>
                             </GenericDialog>
                         }

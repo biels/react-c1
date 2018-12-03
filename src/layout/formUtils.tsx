@@ -8,7 +8,7 @@ import {Namespace} from "react-namespaces";
 export const WhenFieldChanges = ({field, becomes, set, to}) => (
     <Field name={set} subscription={{}}>
         {(
-            // No subscription. We only use Field to get to the change function
+            // No subscription. We only use EntityField to get to the change function
             {input: {onChange}}
         ) => (
             <OnChange name={field}>
@@ -63,45 +63,45 @@ const LocalFieldFactory = ({fieldComponent: FieldComponent = Field}) => ({childr
 export const LocalField = LocalFieldFactory({fieldComponent: Field})
 export const LocalFieldValue = LocalFieldFactory({fieldComponent: FieldValue})
 // export const TwoFields = ({children}) => {
-//     let extract2 = ({f1, f2}) => <Field name={'f3'}>
+//     let extract2 = ({f1, f2}) => <EntityField name={'f3'}>
 //         {(f3) => {
 //             return children({f1, f2, f3})
 //         }}
-//     </Field>;
-//     let extract = ({f1}) => <Field name={'f2'}>
+//     </EntityField>;
+//     let extract = ({f1}) => <EntityField name={'f2'}>
 //         {(f2) => {
 //             return extract2({f1, f2})
 //         }}
-//     </Field>;
-//     return <Field name={'f1'}>
+//     </EntityField>;
+//     return <EntityField name={'f1'}>
 //         {(f1) => {
 //             return extract({f1})
 //         }}
-//     </Field>
+//     </EntityField>
 // }
 // export const ThreeFields = ({children}) => {
-//     let extract2 = (fields) => <Field name={'f3'}>
+//     let extract2 = (fields) => <EntityField name={'f3'}>
 //         {(f3) => {
 //             return children({...fields, f3})
 //         }}
-//     </Field>;
-//     let extract = (fields) => <Field name={'f2'}>
+//     </EntityField>;
+//     let extract = (fields) => <EntityField name={'f2'}>
 //         {(f2) => {
 //             return extract2({...fields, f2})
 //         }}
-//     </Field>;
-//     return <Field name={'f1'}>
+//     </EntityField>;
+//     return <EntityField name={'f1'}>
 //         {(f1) => {
 //             return extract({f1})
 //         }}
-//     </Field>
+//     </EntityField>
 // }
 // export const Fields = ({names, children}: { names: string[], children: (props) => (fields) => Element }) => {
 //     const Composed = names.reduce((pv, name, i, iv) =>
-//         ({children, ...rest}) => <Field name={name}>
+//         ({children, ...rest}) => <EntityField name={name}>
 //             {(field) => {
 //                 return children({[name]: field, ...rest})
 //             }}
-//         </Field>, children)
+//         </EntityField>, children)
 //     return Composed
 // }

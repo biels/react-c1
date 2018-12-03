@@ -28,6 +28,7 @@ import AppIcon from "./application/DApplicationBar/AppIcon";
 import Sidebar from "./application/SidebarComponent/Sidebar";
 import Page from "./page-templates/Page";
 import {toaster} from "./application/toaster";
+import EntityView from "./layout/EntityView";
 
 export {
     ApplicationBody,
@@ -40,6 +41,7 @@ export {
     EntityForm,
     EntityGrid,
     EntityList,
+    EntityView,
     EntityPicker,
     MasterDetailView,
     MiniEntityGrid,
