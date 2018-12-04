@@ -22,6 +22,11 @@ export interface FieldDefaults{
 }
 export const fieldDefaults: FieldDefaults[] = [
     {
+        match: [/^(is|are)/],
+        info: {
+            type: EntityFieldType.boolean
+        }
+    },{
         match: [/external/],
         info: {
             icon: 'asterisk',
@@ -52,6 +57,7 @@ export const fieldDefaults: FieldDefaults[] = [
         match: [/comment/],
         info: {
             icon: 'comment',
+            type: EntityFieldType.textarea
         }
     },{
         match: [/password/],
