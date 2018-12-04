@@ -30,10 +30,10 @@ export interface EntityViewProps {
     index?: number
     wrapper?: ComponentType<FormWrapperRenderProps | any>
     wrapperProps?: ((entity: EntityRenderProps, form: FormRenderProps) => any) | Object
-    children: (entity: EntityRenderProps, mode: CRUDMode, field: (name: string, props?: AutoFieldProps) => any, form?: FormRenderProps) => any
+    children?: (entity: EntityRenderProps, mode: CRUDMode, field: (name: string, props?: AutoFieldProps) => any, form?: FormRenderProps) => any
     creating?: boolean;
     editing?: boolean;
-    onSubmitReady: (submit: Function) => any
+    onSubmitReady?: (submit: Function) => any
     onSubmit?: (entity: EntityRenderProps, values: object, mode: 'editing' | 'creating', form: FormApi, callback) => any
     afterSubmit?: () => any
 }
@@ -44,7 +44,7 @@ export interface EntityViewProps {
  */
 class EntityView extends Component<EntityViewProps> {
     static defaultProps: Partial<EntityViewProps> = {
-        onSubmit: (entity, values, mode) => {
+        onSubmit: (entity, values, mode, form, callback) => {
             console.log(`Submitting`, mode);
             if (mode === 'editing') {
                 if(!entity.selectedItem) {
@@ -63,6 +63,7 @@ class EntityView extends Component<EntityViewProps> {
     }
 
     render() {
+        if(this.props.children == null) return null;
         let renderWithEntity = (entity: EntityRenderProps) => {
             if(entity == null) return <div>No entity provided</div>;
             const renderWithWrapper = (inner, form?) => {
@@ -90,20 +91,22 @@ class EntityView extends Component<EntityViewProps> {
                 return <EntityField key={name || props.name} entity={entity} inForm={inForm} specificInfo={props} creating={creating}/>
             }
 
-            const creating = this.props.creating || entity.creating;
+            let creating = this.props.creating || entity.creating;
             let editing = this.props.editing || entity.editing;
+            if(creating) editing = false;
+            if(editing) creating = false;
             const mode: CRUDMode = creating ? 'creating' : (editing ? 'editing' : 'viewing')
 
             if (!entity.single) editing = entity.editingIndex == this.props.index;
             if (editing || creating) {
                 const handleSubmit: FormProps['onSubmit'] = (values, form, callback) => {
+                    console.log(`SUB`);
                     this.props.onSubmit(entity, values, mode as any, form, callback);
                     this.props.afterSubmit()
                 };
                 let fieldNames = entity.entityInfo.fields.map(f => f.name);
                 let initialValues = {};
                 if (editing) initialValues = _.pick(entity.selectedItem, fieldNames);
-                console.log(`IniV`, initialValues);
                 if (creating) initialValues = entity.entityInfo.fields
                     .map(f => (f.default != null ? {[f.name]: f.default} : {}))
                     .reduce((o1, o2) => Object.assign(o1, o2), {})
@@ -113,9 +116,9 @@ class EntityView extends Component<EntityViewProps> {
                     {(form) => {
                         if(this.props.onSubmitReady)this.props.onSubmitReady(form.handleSubmit)
                         return <form onSubmit={form.handleSubmit}>
-                            {!creating && <FormAutoSave debounce={100} values={form.values} save={handleSubmit as any}/>}
+                            {editing && <FormAutoSave debounce={100} values={form.values} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
-                            <button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={true}>Hidden submit</button>
+                            <button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={false}>Hidden submit</button>
                         </form>
                     }}
                 </Form>

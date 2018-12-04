@@ -313,7 +313,7 @@ class EntityGrid extends Component<EntityGridProps> {
                                     },
                                 ]}
                             >
-                                <CreationComponent entity={entity} onSubmit={handleCreationDialogClose}/>
+                                <CreationComponent entity={entity} creating afterSubmit={handleCreationDialogClose}/>
                             </GenericDialog>
                         }
                         return <Container onKeyDown={handleKeyDown}>

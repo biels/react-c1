@@ -40,7 +40,6 @@ class EntityField extends Component<EntityFieldProps> {
                 {({input: formInput, meta}) => {
 
                     if (field.type === EntityFieldType.boolean) {
-                        console.log(`Forminput`, formInput);
                         return  <Switch {...formInput} checked={formInput.value} label={field.label || field.name} />
                     }
                     if (true) {

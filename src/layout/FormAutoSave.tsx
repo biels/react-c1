@@ -48,14 +48,11 @@ class FormAutoSave extends Component<FormAutoSaveProps, FormAutoSaveState> {
         const {values, save} = this.props
         // This diff step is totally optional
         const difference = _.mapValues(diff(this.state.values, values), v => v === undefined ? null : v)
-        console.log(`D`, difference);
         if (Object.keys(difference).length > 0) {
             // values have changed
             this.setState({submitting: true, values})
             this.promise = this.props.save(difference)
-            console.log(`Submitting`, difference);
             await this.promise;
-            console.log(`Submitted`);
             this.promise = null;
             this.setState({submitting: false})
         }
