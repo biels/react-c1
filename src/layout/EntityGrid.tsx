@@ -89,21 +89,22 @@ export interface EntityGridProps {
     renderCustomFilterBar?: (props: CustomFilterBarRenderProps) => any
     columnDefs: ((entity: EntityRenderProps) => Object) | Object
     gridProps?: Partial<AgGridReactProps>
-    frameworkComponents: any
+    frameworkComponents?: any
     //External filter
-    neutralExternalFilter: object // If matches then there is no filter
-    defaultExternalFilter: object // Default external filter
-    doesExternalFilterPass: (filter: Object, node: any) => boolean
-    externalFilter: object
-    onExternalFilterChange: (newExternalFilter) => void
+    neutralExternalFilter?: object // If matches then there is no filter
+    defaultExternalFilter?: object // Default external filter
+    doesExternalFilterPass?: (filter: Object, node: any) => boolean
+    externalFilter?: object
+    onExternalFilterChange?: (newExternalFilter) => void
     height?: number | string
     baseNegativeOffset?: number
     poll?: boolean
-    fetchPolicy: EntityProps['fetchPolicy']
-    gridKey: any
-    onRowDoubleClicked: (data: { id: number | string }, e: AgGridEvent) => any;
-    selectAllFilter: (it) => boolean
-    selectAllText: string
+    fetchPolicy?: EntityProps['fetchPolicy']
+    gridKey?: any
+    onRowDoubleClicked?: (data: { id: number | string }, e: AgGridEvent) => any;
+    selectAllFilter?: (it) => boolean
+    selectAllText?: string
+    associate?: EntityRenderProps
 }
 
 let gridId = 0;
@@ -222,7 +223,7 @@ class EntityGrid extends Component<EntityGridProps> {
                         };
                         const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
                             const combo = getKeyComboString(e.nativeEvent as KeyboardEvent);
-                            if(CreationComponent != null && combo === 'alt + ins'){
+                            if (CreationComponent != null && combo === 'alt + ins') {
                                 e.preventDefault();
                                 e.stopPropagation();
                                 creationCallback();
@@ -291,6 +292,8 @@ class EntityGrid extends Component<EntityGridProps> {
                             const handleCreationDialogClose = () => {
                                 this.setState({creationDialogOpen: false})
                             }
+                            let submit;
+                            const handleSubmitReady = (s) => submit = s;
                             creationDialog = <GenericDialog
                                 title={'Nou ' + entity.entityInfo.display.singular.toLowerCase()}
                                 isOpen={this.state.creationDialogOpen}
@@ -303,17 +306,24 @@ class EntityGrid extends Component<EntityGridProps> {
                                         text: 'Crear ' + entity.entityInfo.display.singular.toLowerCase(),
                                         intent: Intent.PRIMARY,
                                         onClick: () => {
-                                            let elementById = document.getElementById('submit-new-' + entity.entityInfo.name);
-                                            if(elementById){
-                                                elementById.click();
-                                            }else {
-                                                toaster.show({message: 'Could not find target submit button'})
-                                            }
+                                            if(submit) submit();
                                         }
                                     },
                                 ]}
                             >
-                                <CreationComponent entity={entity} creating afterSubmit={handleCreationDialogClose}/>
+                                <CreationComponent entity={entity} creating afterSubmit={handleCreationDialogClose} onSubmitReady={handleSubmitReady}
+                                                   transform={(v) => {
+                                                       let associate = this.props.associate;
+                                                       if(associate == null) return v;
+                                                       if(associate.selectedItem == null){
+                                                           console.log(`Could not associate with a ${associate.entityInfo.name}. No item selected`);
+                                                           return v;
+                                                       }
+                                                       return ({
+                                                           ...v,
+                                                           [associate.entityInfo.name]: {connect: {id: associate.selectedItem.id}}
+                                                       });
+                                                   }}/>
                             </GenericDialog>
                         }
                         return <Container onKeyDown={handleKeyDown}>

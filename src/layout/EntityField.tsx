@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Field as FormField} from "react-final-form";
-import {FormGroup, InputGroup, Switch} from "@blueprintjs/core";
+import {FormGroup, InputGroup, Switch, TextArea} from "@blueprintjs/core";
 import {EntityFieldInfo, EntityFieldType} from 'react-entity-plane/lib/types/fieldsInfo';
 import MaskedInput from 'react-text-mask';
 import {EntityRenderProps} from "react-entity-plane/lib/Entity";
@@ -38,18 +38,26 @@ class EntityField extends Component<EntityFieldProps> {
         if (this.props.inForm) {
             return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined}>
                 {({input: formInput, meta}) => {
-
+                    const renderFormGroup = (props, input) => {
+                        return <FormGroup label={field.label || field.name} helperText={!mask ? null : 'Mask'}>
+                            {input}
+                        </FormGroup>;
+                    }
                     if (field.type === EntityFieldType.boolean) {
                         return  <Switch {...formInput} checked={formInput.value} label={field.label || field.name} />
                     }
+                    if (field.type === EntityFieldType.textarea) {
+                        return renderFormGroup(formInput, <TextArea {...formInput} placeholder={field.label || field.name} fill={true}/>)
+                    }
+
+
+
                     if (true) {
                         // All other types
-                        const renderFormGroup = (ref, props) => {
-                            return <FormGroup label={field.label || field.name} helperText={!mask ? null : 'Mask'}>
-                                <InputGroup inputRef={ref as any} {...props} placeholder={field.label || field.name}
-                                            leftIcon={field.icon as any} large={false} autoComplete={'offf'}/>
-                            </FormGroup>;
-                        }
+                        const renderInputGroup = (ref, props) => <InputGroup inputRef={ref as any} {...props}
+                                                                             placeholder={field.label || field.name}
+                                                                             leftIcon={field.icon as any} large={false}
+                                                                             autoComplete={'offf'}/>;
                         if (hasMask) {
                             return <MaskedInput
                                 mask={mask.mask}
@@ -60,11 +68,11 @@ class EntityField extends Component<EntityFieldProps> {
                                 showMask={mask.showMask}
                                 {...formInput}
                                 render={(ref, props) => {
-                                    return renderFormGroup(ref, props)
+                                    return renderFormGroup(props, renderInputGroup(ref, props))
                                 }}
                             />
                         } else {
-                            return renderFormGroup(null, formInput)
+                            return renderFormGroup(formInput, renderInputGroup(null, formInput))
                         }
                     }
 

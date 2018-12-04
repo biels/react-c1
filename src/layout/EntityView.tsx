@@ -1,4 +1,4 @@
-import React, {Component, ComponentType, FunctionComponent} from 'react';
+import React, {Component, ComponentType} from 'react';
 import _ from "lodash";
 import Entity, {EntityProps, EntityRenderProps} from "react-entity-plane/lib/Entity";
 import {Form, FormProps, FormRenderProps} from "react-final-form";
@@ -7,7 +7,6 @@ import {FormApi} from "final-form";
 import EntityField from "./EntityField";
 import {EntityFieldInfo} from "react-entity-plane/lib/types/fieldsInfo";
 import FormAutoSave from "./FormAutoSave";
-
 
 
 interface FormWrapperRenderProps {
@@ -20,6 +19,7 @@ type CRUDMode = 'viewing' | 'editing' | 'creating';
 export interface AutoFieldProps extends Partial<EntityFieldInfo> {
 
 }
+
 export interface EntityViewProps {
     name?: EntityProps['name']
     relation?: EntityProps['relation']
@@ -36,6 +36,7 @@ export interface EntityViewProps {
     onSubmitReady?: (submit: Function) => any
     onSubmit?: (entity: EntityRenderProps, values: object, mode: 'editing' | 'creating', form: FormApi, callback) => any
     afterSubmit?: () => any
+    transform?: (values) => object
 }
 
 /**
@@ -44,41 +45,45 @@ export interface EntityViewProps {
  */
 class EntityView extends Component<EntityViewProps> {
     static defaultProps: Partial<EntityViewProps> = {
-        onSubmit: (entity, values, mode, form, callback) => {
-            console.log(`Submitting`, mode);
-            if (mode === 'editing') {
-                if(!entity.selectedItem) {
-                    console.log(`Tried to edit an entity without selection`);
-                    return
-                }
-                console.log(`E`, entity.items);
-                entity.updateId(entity.selectedItem.id, values)
-                // entity.cancelEdition()
-            }
-            if (mode === 'creating') {
-                entity.create(values)
-            }
-        },
+        transform: (values) => values,
         afterSubmit: () => null
+    }
+    onSubmit = (entity, values, mode, form, callback) => {
+        values = this.props.transform(values)
+        if (mode === 'editing') {
+            if (!entity.selectedItem) {
+                console.log(`Tried to edit an entity without selection`);
+                return
+            }
+            console.log(`Edit values:`, values, entity);
+            entity.updateId(entity.selectedItem.id, values)
+            // entity.cancelEdition()
+        }
+        if (mode === 'creating') {
+            console.log(`Create values:`, values, entity);
+            entity.create(values)
+        }
     }
 
     render() {
-        if(this.props.children == null) return null;
+        if (this.props.children == null) return null;
+        if(this.props.creating && this.props.editing) return 'Creating and editing at the same time';
         let renderWithEntity = (entity: EntityRenderProps) => {
-            if(entity == null) return <div>No entity provided</div>;
+            if (entity == null) return <div>No entity provided</div>;
             const renderWithWrapper = (inner, form?) => {
+                let inside = <>{inner}
+                    {renderExtraFields(form != null)}</>;
                 if (this.props.wrapper != null) {
                     const Wrapper = this.props.wrapper
                     if (Wrapper != null) {
                         let wp = this.props.wrapperProps
                         if (_.isFunction(wp)) wp = (wp as any)(entity, form)
                         return <Wrapper entity={entity} form={form} {...wp}>
-                            {inner}
-                            {renderExtraFields(form != null)}
+                            {inside}
                         </Wrapper>
                     }
                 }
-                return inner
+                return inside;
             }
             const renderExtraFields = (inForm) => {
                 const pendingFields = entity.entityInfo.fields.filter(f => !rendered.includes(f.name));
@@ -87,21 +92,22 @@ class EntityView extends Component<EntityViewProps> {
             const rendered = [];
             const field = (inForm: boolean, register: boolean = true) => (name: string, props?: AutoFieldProps) => {
                 if (props == null) props = {name}
-                if(register)rendered.push(props.name);
-                return <EntityField key={name || props.name} entity={entity} inForm={inForm} specificInfo={props} creating={creating}/>
+                if (register) rendered.push(props.name);
+                return <EntityField key={name || props.name} entity={entity} inForm={inForm} specificInfo={props}
+                                    creating={creating}/>
             }
 
-            let creating = this.props.creating || entity.creating;
-            let editing = this.props.editing || entity.editing;
-            if(creating) editing = false;
-            if(editing) creating = false;
+            let creating = this.props.creating ;
+            let editing = this.props.editing;
+            if (creating) editing = false;
+            if (editing) creating = false;
             const mode: CRUDMode = creating ? 'creating' : (editing ? 'editing' : 'viewing')
 
-            if (!entity.single) editing = entity.editingIndex == this.props.index;
+            //if (!entity.single) editing = entity.editingIndex == this.props.index;
             if (editing || creating) {
                 const handleSubmit: FormProps['onSubmit'] = (values, form, callback) => {
-                    console.log(`SUB`);
-                    this.props.onSubmit(entity, values, mode as any, form, callback);
+                    console.log(`Mode`, mode);
+                    this.onSubmit(entity, values, mode as any, form, callback);
                     this.props.afterSubmit()
                 };
                 let fieldNames = entity.entityInfo.fields.map(f => f.name);
@@ -114,11 +120,13 @@ class EntityView extends Component<EntityViewProps> {
                              initialValues={initialValues}
                 >
                     {(form) => {
-                        if(this.props.onSubmitReady)this.props.onSubmitReady(form.handleSubmit)
+                        if (this.props.onSubmitReady) this.props.onSubmitReady(form.handleSubmit)
                         return <form onSubmit={form.handleSubmit}>
-                            {editing && <FormAutoSave debounce={100} values={form.values} save={handleSubmit as any}/>}
+                            {(editing && !creating) && <FormAutoSave debounce={100} values={form.values} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
-                            <button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={false}>Hidden submit</button>
+                            {/*<button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={false}>Hidden*/}
+                                {/*submit*/}
+                            {/*</button>*/}
                         </form>
                     }}
                 </Form>
