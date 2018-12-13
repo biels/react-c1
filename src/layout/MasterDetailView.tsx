@@ -2,6 +2,7 @@ import React, { Component, ComponentType } from 'react';
 import styled from 'styled-components';
 import Entity, { EntityProps, EntityRenderProps } from 'react-entity-plane/lib/Entity';
 import { EntityInfoKey } from 'react-entity-plane/lib/types/entities';
+import {NonIdealState} from "@blueprintjs/core";
 
 const DefaultContainer = styled.div`
     height: 100%;
@@ -26,11 +27,13 @@ export interface MasterDetailViewProps {
     renderMasterView: (renderProps: MasterDetailViewRenderProps) => any
     renderDetailView: (renderProps: MasterDetailViewRenderProps) => any
     wrapperComponent?: ComponentType<any>
+    allowMulti: boolean
 }
 
 class MasterDetailView extends Component<MasterDetailViewProps> {
     static defaultProps: Partial<MasterDetailViewProps> = {
         wrapperComponent: DefaultContainer,
+        allowMulti: false
     };
 
     render() {
@@ -42,6 +45,14 @@ class MasterDetailView extends Component<MasterDetailViewProps> {
                     {this.props.renderMasterView({ entity: masterEntity })}
                     <Entity fetchPolicy={this.props.detailFetchPolicy || this.props.fetchPolicy} query={this.props.query}>
                         {(detailEntity) => {
+                            let display = detailEntity.entityInfo.display;
+                            if(detailEntity.selectedItem == null){
+                                return <NonIdealState title={`Selecciona un ${display.singular.toLowerCase()}`} icon={display.icon || "person"}/>
+                            }
+                            let count = detailEntity.selectedIds.length;
+                            if(!this.props.allowMulti && count > 1){
+                                return <NonIdealState title={`${count} ${display.plural.toLowerCase()}`} icon={display.icon || "person"}/>
+                            }
                             return this.props.renderDetailView ? this.props.renderDetailView({ entity: detailEntity }) : null;
                         }}
                     </Entity>
