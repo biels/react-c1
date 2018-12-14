@@ -229,6 +229,7 @@ class EntityGrid extends Component<EntityGridProps> {
                                 creationCallback();
                             }
                         };
+                        let display = entity.entityInfo.display;
                         const defaultActions = [
                             {
                                 name: 'refresh',
@@ -245,7 +246,7 @@ class EntityGrid extends Component<EntityGridProps> {
                             {
                                 name: 'new',
                                 iconName: 'document',
-                                text: `Nou ${entity.entityInfo.display.singular}`,
+                                text: `${display.gender ? 'Nou' : 'Nova'} ${display.singular}`,
                                 callback: creationCallback,
                             },
                             {
@@ -254,7 +255,7 @@ class EntityGrid extends Component<EntityGridProps> {
                                 text: 'Eliminar',
                                 callback: entity.removeSelected,
                                 confirmation: true,
-                                confirmationText: `¿Estàs segur que vols eliminar aquest ${entity.entityInfo.display.singular}?`,
+                                confirmationText: `¿Estàs segur que vols eliminar ${display.gender ? 'aquest' : 'aquesta'} ${display.singular}?`,
                             },
                         ];
                         // TODO Merge action one by one, using templates by name, setting all non specified properties to the template ones.
@@ -270,7 +271,7 @@ class EntityGrid extends Component<EntityGridProps> {
                             {
                                 name: 'selectAll',
                                 iconName: 'select',
-                                text: this.props.selectAllText || 'Seleccionar tots',
+                                text: this.props.selectAllText || `Seleccionar ${display.gender ? 'tots' : 'totes'}`,
                                 callback: () => {
                                     if (!_.isArray(entity.items)) return;
                                     entity.selectIds(entity.items.filter(this.props.selectAllFilter || (() => true)).map(it => it.id as number), null, true)
@@ -295,7 +296,7 @@ class EntityGrid extends Component<EntityGridProps> {
                             let submit;
                             const handleSubmitReady = (s) => submit = s;
                             creationDialog = <GenericDialog
-                                title={'Nou ' + entity.entityInfo.display.singular.toLowerCase()}
+                                title={`${display.gender ? 'Nou' : 'Nova'} ${display.singular.toLowerCase()}`}
                                 isOpen={this.state.creationDialogOpen}
                                 onClose={handleCreationDialogClose}
                                 buttons={[
@@ -303,19 +304,20 @@ class EntityGrid extends Component<EntityGridProps> {
                                         text: 'Cancelar',
                                         onClick: handleCreationDialogClose
                                     }, {
-                                        text: 'Crear ' + entity.entityInfo.display.singular.toLowerCase(),
+                                        text: 'Crear ' + display.singular.toLowerCase(),
                                         intent: Intent.PRIMARY,
                                         onClick: () => {
-                                            if(submit) submit();
+                                            if (submit) submit();
                                         }
                                     },
                                 ]}
                             >
-                                <CreationComponent entity={entity} creating afterSubmit={handleCreationDialogClose} onSubmitReady={handleSubmitReady}
+                                <CreationComponent entity={entity} creating afterSubmit={handleCreationDialogClose}
+                                                   onSubmitReady={handleSubmitReady}
                                                    transform={(v) => {
                                                        let associate = this.props.associate;
-                                                       if(associate == null) return v;
-                                                       if(associate.selectedItem == null){
+                                                       if (associate == null) return v;
+                                                       if (associate.selectedItem == null) {
                                                            console.log(`Could not associate with a ${associate.entityInfo.name}. No item selected`);
                                                            return v;
                                                        }
@@ -330,7 +332,7 @@ class EntityGrid extends Component<EntityGridProps> {
                             {this.props.renderHeader({
                                 searchFieldElement: <InputGroup leftIcon={'search'}
                                                                 onChange={this.handleFilterChange(entity)}
-                                                                placeholder={'Cerca per qualsevol camp...'}
+                                                                placeholder={`Cerca ${display.plural.toLowerCase()} per qualsevol camp...`}
                                                                 value={entity.entityState.filter || ''}/>,
                                 customFilterElement: this.props.renderCustomFilterBar ? this.props.renderCustomFilterBar({
                                     onChangeFilter: this.handleExternalFilterChange(entity),
