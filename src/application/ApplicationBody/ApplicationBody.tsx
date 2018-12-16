@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import NavigationPageRenderer from 'react-navigation-plane/lib/NavigationPageRenderer';
+import {NavigationPageRenderer} from 'react-navigation-plane';
 
 
 const Container = styled.div`
@@ -17,9 +17,7 @@ class ApplicationBody extends Component {
             <React.Fragment>
                 {/* Or login screen if not logged in */}
                 {/* Or error page*/}
-                {/*<ClientsPage/>*/}
                 <NavigationPageRenderer maxHiddenFrames={0} maxHiddenStacks={0}/>
-                {/*<ClientsPage/>*/}
             </React.Fragment>
         );
     }

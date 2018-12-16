@@ -1,8 +1,8 @@
 import React, { Component, ComponentType, Ref } from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
-import Entity, { EntityRenderProps } from 'react-entity-plane/lib/Entity';
-import { EntityInfoKey } from 'react-entity-plane/lib/types/entities';
+import { EntityRenderProps, Entity } from 'react-entity-plane';
+import { EntityInfoKey } from 'react-entity-plane';
 import { Action } from '../page-templates/components/PageHeader/components/ActionArea';
 import { Button, InputGroup } from '@blueprintjs/core';
 import { AgGridReact } from 'ag-grid-react';

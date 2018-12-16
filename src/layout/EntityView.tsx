@@ -1,12 +1,11 @@
 import React, {Component, ComponentType} from 'react';
 import _ from "lodash";
-import Entity, {EntityProps, EntityRenderProps} from "react-entity-plane/lib/Entity";
 import {Form, FormProps, FormRenderProps} from "react-final-form";
 import {Action} from "../page-templates/components/PageHeader/components/ActionArea";
 import {FormApi} from "final-form";
 import EntityField from "./EntityField";
-import {EntityFieldInfo} from "react-entity-plane/lib/types/fieldsInfo";
 import FormAutoSave from "./FormAutoSave";
+import {EntityRenderProps, EntityFieldInfo, EntityProps, Entity} from 'react-entity-plane';
 
 
 interface FormWrapperRenderProps {

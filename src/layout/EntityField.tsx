@@ -1,9 +1,9 @@
 import React, {Component} from 'react';
 import {Field as FormField} from "react-final-form";
 import {FormGroup, InputGroup, Switch, TextArea} from "@blueprintjs/core";
-import {EntityFieldInfo, EntityFieldType} from 'react-entity-plane/lib/types/fieldsInfo';
+import {EntityFieldInfo, EntityFieldType} from 'react-entity-plane';
 import MaskedInput from 'react-text-mask';
-import {EntityRenderProps} from "react-entity-plane/lib/Entity";
+import {EntityRenderProps} from "react-entity-plane";
 import * as _ from "lodash";
 import {fieldDefaults} from "../defaults/fieldDefaults";
 

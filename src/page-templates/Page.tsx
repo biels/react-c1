@@ -1,18 +1,14 @@
-import React, {Component, ReactNode, SyntheticEvent} from 'react';
+import React, {Component, ReactNode} from 'react';
 import styled from 'styled-components';
 import PageHeader, {PageHeaderProps} from './components/PageHeader/PageHeader';
 
 
-import PageContextSpy from 'react-navigation-plane/lib/PageContext/PageContextSpy';
-import InstanceTitle from 'react-navigation-plane/lib/utils/InstanceTitle';
-import {EntityContextProvider} from 'react-entity-plane/lib/EntityContext';
-import {EntityPlaneInfo} from 'react-entity-plane/lib/types/EntityPlaneInfo';
 import ErrorBoundary from './ErrorBoundary';
-import {ProvidedPageContext} from 'react-navigation-plane/lib/PageContext/PageContext';
-import {ProvidedNavigationContext} from "react-navigation-plane/lib/NavigationContext/NavigationContext";
 import {getKeyComboString} from "@blueprintjs/core";
 import * as _ from 'lodash';
-import {toaster} from "../index";
+import {EntityPlaneInfo, EntityContextProvider} from 'react-entity-plane';
+import {ProvidedPageContext, PageContextSpy, InstanceTitle} from 'react-navigation-plane';
+import {ProvidedNavigationContext} from 'react-navigation-plane/src/NavigationContext/NavigationContext';
 
 const Container = styled.div`
     display: grid;
@@ -80,7 +76,7 @@ class Page extends Component<BasicPageProps> {
         if (this.state.hasError) return <div>Something went wrong in page</div>;
         return <ErrorBoundary>
             <PageContextSpy>
-                {(pageContext) => {
+                {(pageContext: ProvidedPageContext) => {
                     return <EntityContextProvider entityPlaneInfo={this.props.entityPlane}
                                                   rootEntityId={pageContext.args.entityId}>
                         <Container onMouseDown={this.handleMouseDown(pageContext.back)} tabIndex="0" onKeyDown={this.handleKeyDown(pageContext.back)}>

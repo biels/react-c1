@@ -2,7 +2,7 @@ import React, {Component} from 'react';
 import styled from "styled-components";
 import _ from "lodash";
 import {ContextMenuTarget, Icon, IconName, Menu, MenuItem} from "@blueprintjs/core";
-import {NavigationConsumer} from "react-navigation-plane/lib/NavigationContext/NavigationContext";
+import {NavigationConsumer} from 'react-navigation-plane';
 
 const Container = styled.div`
     display: flex;

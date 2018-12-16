@@ -1,10 +1,9 @@
 import React, { Component } from 'react';
 import styled from 'styled-components';
-import Entity, { EntityRenderProps } from 'react-entity-plane/lib/Entity';
-import { EntityInfoKey } from 'react-entity-plane/lib/types/entities';
 import { Button, Dialog, Intent } from '@blueprintjs/core';
 import MasterDetailView, { MasterDetailViewProps } from './MasterDetailView';
 import GenericDialog from "./GenericDialog";
+import {EntityInfoKey, Entity, EntityRenderProps} from 'react-entity-plane';
 
 const OuterContainer = styled.div`
     > div {
@@ -54,10 +53,10 @@ class EntityPicker extends Component<EntityPickerProps> {
                         isOpen={this.props.isOpen} onClose={handleClose}>
                         <Container>
                             <MasterDetailView
-                                renderMasterView={() => this.props.renderMasterView({ entity })}
-                                renderDetailView={({ entity }) => {
+                                renderMasterView={() => this.props.renderMasterView({entity})}
+                                renderDetailView={({entity}) => {
                                     return <PickerDetailContainer>
-                                        {this.props.renderDetailView && this.props.renderDetailView({ entity })}
+                                        {this.props.renderDetailView && this.props.renderDetailView({entity})}
                                         <PickerDetailFooterContainer>
                                             <Button onClick={handleClose}>Cancelar</Button>
                                             <Button

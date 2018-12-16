@@ -1,4 +1,4 @@
-import {EntityFieldInfo, EntityFieldType, EntityFieldValidation, EntityFieldMask} from "react-entity-plane/lib/types/fieldsInfo";
+import {EntityFieldInfo, EntityFieldType, EntityFieldValidation, EntityFieldMask} from "react-entity-plane";
 import createAutoCorrectedDatePipe from 'text-mask-addons/dist/createAutoCorrectedDatePipe'
 import emailMask from 'text-mask-addons/dist/emailMask'
 import createNumberMask from 'text-mask-addons/dist/createNumberMask'

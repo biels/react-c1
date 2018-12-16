@@ -4,7 +4,7 @@ import _ from "lodash";
 import {Button, Intent} from "@blueprintjs/core";
 import {Action} from "../components/PageHeader/components/ActionArea";
 import Actions from "../Actions/Actions";
-import {EntityRenderProps} from "react-entity-plane/lib/Entity";
+import {EntityRenderProps} from "react-entity-plane";
 import {FormRenderProps} from "react-final-form";
 import EntityActions from "../../layout/EntityActions";
 

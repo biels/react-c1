@@ -1,6 +1,6 @@
 import React, {Component, ComponentType, ReactNode} from 'react';
 import _ from "lodash";
-import Entity, {EntityProps, EntityRenderProps} from "react-entity-plane/lib/Entity";
+import {Entity, EntityProps, EntityRenderProps} from "react-entity-plane";
 import {Action} from "../page-templates/components/PageHeader/components/ActionArea";
 import {Form, FormRenderProps} from "react-final-form";
 

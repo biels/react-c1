@@ -1,8 +1,6 @@
 import React, {Component, ComponentType} from 'react';
 import styled from "styled-components";
-import _ from "lodash";
-import Entity from "react-entity-plane/lib/Entity";
-import {EntityInfoKey} from "react-entity-plane/lib/types/entities";
+import {Entity, EntityInfoKey} from "react-entity-plane";
 import {Action} from "../page-templates/components/PageHeader/components/ActionArea";
 
 const Container = styled.div`

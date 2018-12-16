@@ -1,8 +1,9 @@
 import React, { Component, ComponentType } from 'react';
 import styled from 'styled-components';
-import Entity, { EntityProps, EntityRenderProps } from 'react-entity-plane/lib/Entity';
-import { EntityInfoKey } from 'react-entity-plane/lib/types/entities';
+import {Entity, EntityRenderProps } from 'react-entity-plane';
+import { EntityInfoKey } from 'react-entity-plane';
 import {NonIdealState} from "@blueprintjs/core";
+import {EntityProps} from 'react-entity-plane/src/Entity';
 
 const DefaultContainer = styled.div`
     height: 100%;
@@ -47,11 +48,11 @@ class MasterDetailView extends Component<MasterDetailViewProps> {
                         {(detailEntity) => {
                             let display = detailEntity.entityInfo.display;
                             if(detailEntity.selectedItem == null){
-                                return <NonIdealState title={`Selecciona un ${display.singular.toLowerCase()}`} icon={display.icon || "person"}/>
+                                return <NonIdealState title={`Selecciona un ${display.singular.toLowerCase()}`} icon={(display.icon || "person") as any}/>
                             }
                             let count = detailEntity.selectedIds.length;
                             if(!this.props.allowMulti && count > 1){
-                                return <NonIdealState title={`${count} ${display.plural.toLowerCase()}`} icon={display.icon || "person"}/>
+                                return <NonIdealState title={`${count} ${display.plural.toLowerCase()}`} icon={(display.icon || "person") as any}/>
                             }
                             return this.props.renderDetailView ? this.props.renderDetailView({ entity: detailEntity }) : null;
                         }}

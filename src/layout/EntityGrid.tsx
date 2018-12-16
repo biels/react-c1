@@ -1,8 +1,6 @@
 import React, {Component, ComponentType, Ref} from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
-import Entity, {EntityProps, EntityRenderProps} from 'react-entity-plane/lib/Entity';
-import {EntityInfoKey} from 'react-entity-plane/lib/types/entities';
 import {Action} from '../page-templates/components/PageHeader/components/ActionArea';
 import {Button, getKeyComboString, InputGroup, Intent} from '@blueprintjs/core';
 import {AgGridReact, AgGridReactProps} from 'ag-grid-react';
@@ -11,6 +9,7 @@ import {AgGridEvent, GridApi, RowClickedEvent, RowNode, RowSelectedEvent} from '
 import ErrorBoundary from '../page-templates/ErrorBoundary';
 import GenericDialog from "./GenericDialog";
 import {toaster} from "../index";
+import {EntityProps, EntityRenderProps, EntityInfoKey, Entity} from 'react-entity-plane';
 
 // const OldContainer = styled.div`
 //     height: 100%;

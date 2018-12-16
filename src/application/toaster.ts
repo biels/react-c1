@@ -1,3 +1,3 @@
-import {Toaster} from "@blueprintjs/core";
+import {IToaster, Toaster} from "@blueprintjs/core";
 
-export const toaster = Toaster.create();
+export const toaster: IToaster = Toaster.create();

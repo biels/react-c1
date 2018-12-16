@@ -1,11 +1,10 @@
 import React, {Component} from 'react';
 import _ from "lodash";
-import {EntityRenderProps} from "react-entity-plane/lib/Entity";
+import {EntityRenderProps} from "react-entity-plane";
 import Actions, {ActionsProps} from "../page-templates/Actions/Actions";
 import {FormRenderProps} from "react-final-form";
 import {Intent} from "@blueprintjs/core";
 import {Action} from "../page-templates/components/PageHeader/components/ActionArea";
-import {toaster} from "../application/toaster";
 
 export interface EntityActionsProps {
     entity: EntityRenderProps

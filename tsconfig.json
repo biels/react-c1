@@ -26,8 +26,8 @@
     "allowSyntheticDefaultImports": true,
     "pretty": true,
     "strict": false,
-    "skipLibCheck": false,
-    "skipDefaultLibCheck": false,
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
     "experimentalDecorators": true,
     "esModuleInterop": true
   },
