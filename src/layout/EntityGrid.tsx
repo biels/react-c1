@@ -3,13 +3,13 @@ import styled from 'styled-components';
 import _ from 'lodash';
 import {Action} from '../page-templates/components/PageHeader/components/ActionArea';
 import {Button, getKeyComboString, InputGroup, Intent} from '@blueprintjs/core';
-import {AgGridReact, AgGridReactProps} from 'ag-grid-react';
+import {AgGridColumnProps, AgGridReact, AgGridReactProps} from 'ag-grid-react';
 import Actions from '../page-templates/Actions/Actions';
 import {AgGridEvent, GridApi, RowClickedEvent, RowNode, RowSelectedEvent} from 'ag-grid-community';
 import ErrorBoundary from '../page-templates/ErrorBoundary';
 import GenericDialog from "./GenericDialog";
 import {toaster} from "../index";
-import {EntityProps, EntityRenderProps, EntityInfoKey, Entity} from 'react-entity-plane';
+import {EntityProps, EntityRenderProps, EntityInfoKey, Entity, EntityFieldType} from 'react-entity-plane';
 
 // const OldContainer = styled.div`
 //     height: 100%;
@@ -189,14 +189,12 @@ class EntityGrid extends Component<EntityGridProps> {
     // }
     render() {
         const C = this.props.containerComponent; // TODO Pick styles from ClientsGrid
-
         return <C>
             <ErrorBoundary>
                 <Entity name={this.props.name} relation={this.props.relation}
                         fetchPolicy={this.props.fetchPolicy}
                         query={this.props.query} poll={this.props.poll}>
                     {(entity: EntityRenderProps) => {
-
                         const footer = this.props.renderFooter && this.props.renderFooter({
                             gridApi: this.gridApi,
                             entity,
@@ -257,7 +255,8 @@ class EntityGrid extends Component<EntityGridProps> {
                                 confirmationText: `¿Estàs segur que vols eliminar ${display.gender ? 'aquest' : 'aquesta'} ${display.singular}?`,
                             },
                         ];
-                        // TODO Merge action one by one, using templates by name, setting all non specified properties to the template ones.
+                        // TODO Merge action one by one, using templates by name, setting all non specified properties
+                        // to the template ones.
                         let providedActions = this.props.actions;
                         if (_.isFunction(providedActions)) providedActions = providedActions(entity);
                         const actions = providedActions.map(pa => {
@@ -283,9 +282,29 @@ class EntityGrid extends Component<EntityGridProps> {
                                 callback: () => entity.selectIds([], null, true),
                             },
                         ];
-                        let columnDefs = this.props.columnDefs;
+                        let columnDefs: AgGridColumnProps[] = this.props.columnDefs as AgGridColumnProps[];
                         if (_.isFunction(columnDefs)) columnDefs = columnDefs(entity);
+                        // Process provided column defs
 
+                        const getExtraColumns = (): AgGridColumnProps[] => {
+                            // Defaults will be applied later
+                            const allFieldNames = entity.entityInfo.fields.map(f => f.name);
+                            const specifiedFieldNames = columnDefs.map(cd => cd.field);
+                            const remainingFieldNames = _.difference(allFieldNames, specifiedFieldNames);
+                            //entity.entityInfo.fields.filter(f => !columnDefs.map(cd => cd.field).includes(f.name))
+                            return remainingFieldNames
+                                .map((name): AgGridColumnProps => ({field: name, headerTooltip: '(auto)'}));
+                        }
+                        columnDefs = [...columnDefs, ...getExtraColumns()]
+                        // Apply defaults where not set
+                        const getDefaultsForColumn = (fieldName): Partial<AgGridColumnProps> => {
+                            const info = entity.entityInfo.fields.find(f => f.name === fieldName)
+                            if(info == null) return {};
+                            let cellEditor: AgGridColumnProps['cellEditor'] = 'agTextCellEditor';
+                            if (info.type === EntityFieldType.textarea) cellEditor = 'agLargeTextCellEditor';
+                            return {headerName: info.label, cellEditor, editable: true}
+                        }
+                        columnDefs = columnDefs.map(cd => ({...getDefaultsForColumn(cd.field), ...cd}))
 
                         let creationDialog;
                         if (CreationComponent != null && isCreateImplemented) {
@@ -365,10 +384,10 @@ class EntityGrid extends Component<EntityGridProps> {
                                     {creationDialog}
 
                                     {/*<div>ID: {this.gridId}</div>
-                                    <div>Idx: {entity.selectedIndex}</div>
-                                    <div>Idxs: {entity.selectedIndexes.toString()}</div>
-                                    <div>Ids: {entity.selectedIds.toString()}</div>
-                                    <div>Id: {entity.selectedId}</div>*/}
+                                     <div>Idx: {entity.selectedIndex}</div>
+                                     <div>Idxs: {entity.selectedIndexes.toString()}</div>
+                                     <div>Ids: {entity.selectedIds.toString()}</div>
+                                     <div>Id: {entity.selectedId}</div>*/}
                                 </GridToolbarContainer>
                             </GridToolbarArea>
                             <GridFooterArea>
@@ -527,7 +546,8 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
 
         //this.updatingFromOutside = false;
 
-        // console.log(`Removed: ${removed.toString()}, added: ${added.toString()} (current ${currentlySelectedIds}, new ${newSelectedIds.toString()})`);
+        // console.log(`Removed: ${removed.toString()}, added: ${added.toString()} (current ${currentlySelectedIds},
+        // new ${newSelectedIds.toString()})`);
 
         // console.log(`this.props.entity.selectedIds: `, this.props.entity.selectedIds);
     };

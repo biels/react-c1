@@ -112,7 +112,7 @@ export const fieldDefaults: FieldDefaults[] = [
         }
     },
     {
-        match: ['phone'],
+        match: [/phone/, /mobile/],
         info: {
             icon: 'phone',
             // Add mask
@@ -128,7 +128,7 @@ export const fieldDefaults: FieldDefaults[] = [
         }
     },
     {
-        match: ['email'],
+        match: [/email/],
         info: {
             icon: 'envelope',
             label: 'Email',
