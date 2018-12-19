@@ -64,8 +64,10 @@
     "deep-object-diff": "^1.1.0",
     "final-form": "^4.11.0",
     "object-diff": "^0.0.4",
+    "react-entity-plane": "^1.0.0",
     "react-final-form": "^4.0.2",
     "react-final-form-listeners": "^1.0.1",
+    "react-navigation-plane": "^2.0.0",
     "react-text-mask": "^5.4.3",
     "text-mask-addons": "^3.8.0"
   },
