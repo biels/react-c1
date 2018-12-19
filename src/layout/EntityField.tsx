@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Field as FormField} from "react-final-form";
-import {FormGroup, InputGroup, Switch, TextArea} from "@blueprintjs/core";
+import {FormGroup, HTMLSelect, InputGroup, Switch, TextArea} from "@blueprintjs/core";
 import {EntityFieldInfo, EntityFieldType} from 'react-entity-plane';
 import MaskedInput from 'react-text-mask';
 import {EntityRenderProps} from "react-entity-plane";
@@ -20,6 +20,7 @@ class EntityField extends Component<EntityFieldProps> {
         const {specificInfo, ...rest} = this.props;
         const name = specificInfo.name;
         const baseInfo = this.props.entity.entityInfo.fields.find(fi => fi.name === name)
+        let entityInfo = this.props.entity.entityInfo;
         if (baseInfo == null) {
             console.log(`R null`);
             return null;
@@ -43,11 +44,21 @@ class EntityField extends Component<EntityFieldProps> {
                             {input}
                         </FormGroup>;
                     }
+                    let label = field.label || field.name;
                     if (field.type === EntityFieldType.boolean) {
-                        return  <Switch {...formInput} checked={formInput.value} label={field.label || field.name} />
+                        return  <Switch {...formInput} checked={formInput.value} label={label} />
                     }
                     if (field.type === EntityFieldType.textarea) {
-                        return renderFormGroup(formInput, <TextArea {...formInput} placeholder={field.label || field.name} fill={true}/>)
+                        return renderFormGroup(formInput, <TextArea {...formInput} placeholder={label} fill={true}/>)
+                    }
+                    if (field.type === EntityFieldType.relation) {
+                        const relationInfo = entityInfo.relations[field.name];
+                        if(relationInfo == null) {
+                            console.log(`Could not find relation info for ${field.name} in ${entityInfo.name}`);
+                            return null;
+                        }
+                        if(relationInfo.type ===  'multi') return null;
+                        return renderFormGroup(formInput, <HTMLSelect {...formInput} placeholder={label}/>)
                     }
 
 
@@ -55,7 +66,7 @@ class EntityField extends Component<EntityFieldProps> {
                     if (true) {
                         // All other types
                         const renderInputGroup = (ref, props) => <InputGroup inputRef={ref as any} {...props}
-                                                                             placeholder={field.label || field.name}
+                                                                             placeholder={label}
                                                                              leftIcon={field.icon as any} large={false}
                                                                              autoComplete={'offf'}/>;
                         if (hasMask) {

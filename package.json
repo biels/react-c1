@@ -9,6 +9,7 @@
     "test": "jest",
     "test:watch": "jest --watch",
     "postversion": "git push && git push --tags",
+    "link-all": "yarn unlink react-entity-plane react-navigation-plane && yarn link react-entity-plane react-navigation-plane",
     "publish:patch": "npm version patch && npm publish",
     "publish:minor": "npm version minor && npm publish",
     "publish:major": "npm version major && npm publish"
