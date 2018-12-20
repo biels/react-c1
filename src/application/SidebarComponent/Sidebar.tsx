@@ -66,9 +66,15 @@ export interface SidebarProps {
     buttons: SidebarButton[]
     bottomCount: number
     selectedIndex: number | null
+    renderLogo?: Function
 }
 
 class Sidebar extends Component<SidebarProps> {
+    static defaultProps: Partial<SidebarProps> = {
+        renderLogo: () => <LogoContainer>
+            <span>I</span>
+        </LogoContainer>
+    }
     render() {
         const iconTags = this.props.buttons.map((buttonInfo, i) => {
             let iconComponent;
@@ -96,9 +102,7 @@ class Sidebar extends Component<SidebarProps> {
         const topIcons = iconTags.slice(0, iconTags.length - this.props.bottomCount);
         const bottomIcons = iconTags.slice(iconTags.length - this.props.bottomCount);
         return <Container>
-            <LogoContainer>
-                <span>A</span>
-            </LogoContainer>
+            {this.props.renderLogo()}
             <TabContainer>
                 <div>{topIcons}</div>
                 <div/>
