@@ -1,7 +1,9 @@
 import React, {Component} from 'react';
 import {Field as FormField} from "react-final-form";
-import {FormGroup, HTMLSelect, InputGroup, Switch, TextArea} from "@blueprintjs/core";
-import {EntityFieldInfo, EntityFieldType} from 'react-entity-plane';
+import {Button, FormGroup, HTMLSelect, InputGroup, MenuItem, Switch, TextArea} from "@blueprintjs/core";
+import {Select} from "@blueprintjs/select";
+
+import {EntityFieldInfo, EntityFieldType, LoadingQuery, Entity} from 'react-entity-plane';
 import MaskedInput from 'react-text-mask';
 import {EntityRenderProps} from "react-entity-plane";
 import * as _ from "lodash";
@@ -22,7 +24,7 @@ class EntityField extends Component<EntityFieldProps> {
         const baseInfo = this.props.entity.entityInfo.fields.find(fi => fi.name === name)
         let entityInfo = this.props.entity.entityInfo;
         if (baseInfo == null) {
-            console.log(`R null`);
+            console.log(`Field ${name} is not defined on ${entityInfo.name}`);
             return null;
         }
         const matchingDefaults = fieldDefaults.filter(fd => {
@@ -57,11 +59,31 @@ class EntityField extends Component<EntityFieldProps> {
                             console.log(`Could not find relation info for ${field.name} in ${entityInfo.name}`);
                             return null;
                         }
-                        if(relationInfo.type ===  'multi') return null;
-                        return renderFormGroup(formInput, <HTMLSelect {...formInput} placeholder={label}/>)
+                        if(relationInfo.type === 'multi') return null;
+                        return <Entity name={relationInfo.entityName}>
+                            {(entity) => {
+                                console.log(`Entity`, entity);
+                                const displayItems = entity.items
+                                let getDisplayName = (item: any = {name: '---'}) => item.name || item.title || item.companyName || item.centerName || item.id;
+                                let select = <Select
+                                    items={entity.items}
+
+                                    itemRenderer={(item, info) => {
+                                        return <MenuItem onClick={info.handleClick} disabled={false} text={getDisplayName(item)}/>;
+                                    }}
+                                    onItemSelect={(item, event) => {
+                                        console.log(`selected `, item);
+                                        entity.selectId(item.id as any)
+                                        return formInput.onChange(item.id);
+                                    }}
+                                    //activeItem={entity.selectedItem}
+                                    filterable={true}>
+                                    <Button text={getDisplayName(entity.selectedItem)} rightIcon="double-caret-vertical" icon={entity.entityInfo.display.icon}/>
+                                </Select>;
+                                return renderFormGroup(formInput, select)
+                            }}
+                        </Entity>
                     }
-
-
 
                     if (true) {
                         // All other types
