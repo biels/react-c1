@@ -86,7 +86,7 @@ export const fieldDefaults: FieldDefaults[] = [
         }
     },
     {
-        match: ['price'],
+        match: [/[Pp]rice/],
         info: {
             icon: 'euro',
             type: EntityFieldType.number

@@ -1,13 +1,13 @@
 import React, {Component} from 'react';
 import {Field as FormField} from "react-final-form";
-import {Button, FormGroup, HTMLSelect, InputGroup, MenuItem, Switch, TextArea} from "@blueprintjs/core";
+import {Button, FormGroup, InputGroup, MenuItem, Switch, TextArea} from "@blueprintjs/core";
 import {Select} from "@blueprintjs/select";
 
-import {EntityFieldInfo, EntityFieldType, LoadingQuery, Entity} from 'react-entity-plane';
+import {Entity, EntityFieldInfo, EntityFieldType, EntityRenderProps, LoadingQuery} from 'react-entity-plane';
 import MaskedInput from 'react-text-mask';
-import {EntityRenderProps} from "react-entity-plane";
 import * as _ from "lodash";
 import {fieldDefaults} from "../defaults/fieldDefaults";
+import {getDisplayName} from "../page-templates/utils/getDisplayName";
 
 
 export interface EntityFieldProps {
@@ -39,7 +39,14 @@ class EntityField extends Component<EntityFieldProps> {
         const isBoolean = field.type === EntityFieldType.boolean;
         if (this.props.creating && field.create === false) return null;
         if (this.props.inForm) {
-            return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined}>
+            let parse, format;
+            if (field.type === EntityFieldType.number) {
+                parse = v => v && parseInt(v)
+                format = v => (v || '').toString()
+            }
+
+            return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined} parse={parse}
+                              format={format}>
                 {({input: formInput, meta}) => {
                     const renderFormGroup = (props, input) => {
                         return <FormGroup label={field.label || field.name} helperText={!mask ? null : 'Mask'}>
@@ -48,37 +55,40 @@ class EntityField extends Component<EntityFieldProps> {
                     }
                     let label = field.label || field.name;
                     if (field.type === EntityFieldType.boolean) {
-                        return  <Switch {...formInput} checked={formInput.value} label={label} />
+                        return <Switch {...formInput} checked={formInput.value} label={label}/>
                     }
                     if (field.type === EntityFieldType.textarea) {
                         return renderFormGroup(formInput, <TextArea {...formInput} placeholder={label} fill={true}/>)
                     }
                     if (field.type === EntityFieldType.relation) {
                         const relationInfo = entityInfo.relations[field.name];
-                        if(relationInfo == null) {
+                        if (relationInfo == null) {
                             console.log(`Could not find relation info for ${field.name} in ${entityInfo.name}`);
                             return null;
                         }
-                        if(relationInfo.type === 'multi') return null;
+                        if (relationInfo.type === 'multi') return null;
                         return <Entity name={relationInfo.entityName}>
                             {(entity) => {
                                 console.log(`Entity`, entity);
                                 const displayItems = entity.items
-                                let getDisplayName = (item: any = {name: '---'}) => item.name || item.title || item.companyName || item.centerName || item.id;
+                                if(formInput.value == null || formInput.value == '') entity.selectId(null, false);
                                 let select = <Select
                                     items={entity.items}
 
                                     itemRenderer={(item, info) => {
-                                        return <MenuItem onClick={info.handleClick} disabled={false} text={getDisplayName(item)}/>;
+                                        return <MenuItem onClick={info.handleClick} disabled={false}
+                                                         text={getDisplayName(item)}/>;
                                     }}
                                     onItemSelect={(item, event) => {
                                         console.log(`selected `, item);
                                         entity.selectId(item.id as any)
-                                        return formInput.onChange(item.id);
+                                        // Change to support different association formats
+                                        formInput.onChange({connect: {id: item.id}});
                                     }}
-                                    //activeItem={entity.selectedItem}
+                                    activeItem={entity.selectedItem}
                                     filterable={true}>
-                                    <Button text={getDisplayName(entity.selectedItem)} rightIcon="double-caret-vertical" icon={entity.entityInfo.display.icon}/>
+                                    <Button text={getDisplayName(entity.selectedItem)} rightIcon="double-caret-vertical"
+                                            icon={entity.entityInfo.display.icon}/>
                                 </Select>;
                                 return renderFormGroup(formInput, select)
                             }}
@@ -87,10 +97,17 @@ class EntityField extends Component<EntityFieldProps> {
 
                     if (true) {
                         // All other types
-                        const renderInputGroup = (ref, props) => <InputGroup inputRef={ref as any} {...props}
-                                                                             placeholder={label}
-                                                                             leftIcon={field.icon as any} large={false}
-                                                                             autoComplete={'offf'}/>;
+                        const renderInputGroup = (ref, props) => {
+
+                            return <InputGroup inputRef={ref as any} {...props}
+                                               placeholder={label}
+                                               leftIcon={field.icon as any} large={false}
+                                               autoComplete={'offf'}
+
+                            />;
+                        };
+
+
                         if (hasMask) {
                             return <MaskedInput
                                 mask={mask.mask}
@@ -98,6 +115,7 @@ class EntityField extends Component<EntityFieldProps> {
                                 placeholderChar={mask.placeholderChar}
                                 keepCharPositions={mask.keepCharPositions}
                                 pipe={mask.pipe}
+
                                 showMask={mask.showMask}
                                 {...formInput}
                                 render={(ref, props) => {
