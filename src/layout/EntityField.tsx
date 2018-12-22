@@ -2,12 +2,14 @@ import React, {Component} from 'react';
 import {Field as FormField} from "react-final-form";
 import {Button, FormGroup, InputGroup, MenuItem, Switch, TextArea} from "@blueprintjs/core";
 import {Select} from "@blueprintjs/select";
+import {DateInput} from "@blueprintjs/datetime";
 
 import {Entity, EntityFieldInfo, EntityFieldType, EntityRenderProps, LoadingQuery} from 'react-entity-plane';
 import MaskedInput from 'react-text-mask';
 import * as _ from "lodash";
 import {fieldDefaults} from "../defaults/fieldDefaults";
 import {getDisplayName} from "../page-templates/utils/getDisplayName";
+import moment from 'moment';
 
 
 export interface EntityFieldProps {
@@ -60,6 +62,18 @@ class EntityField extends Component<EntityFieldProps> {
                     if (field.type === EntityFieldType.textarea) {
                         return renderFormGroup(formInput, <TextArea {...formInput} placeholder={label} fill={true}/>)
                     }
+                    if (field.type === EntityFieldType.date) {
+                        let format = 'DD/MM/YYYY';
+                        const parseDate = raw => moment(raw, format).toDate()
+                        const formatDate = date => moment(date).format(format)
+                        return renderFormGroup(formInput, <DateInput
+                            parseDate={parseDate}
+                            formatDate={formatDate}
+                            {...formInput}
+                            value={formInput.value || null}
+                            placeholder={label}
+                        />)
+                    }
                     if (field.type === EntityFieldType.relation) {
                         const relationInfo = entityInfo.relations[field.name];
                         if (relationInfo == null) {
@@ -71,7 +85,8 @@ class EntityField extends Component<EntityFieldProps> {
                             {(entity) => {
                                 console.log(`Entity`, entity);
                                 const displayItems = entity.items
-                                if(formInput.value == null || formInput.value == '') entity.selectId(null, false);
+                                entity.selectId(_.get(formInput.value, 'connect.id', null), false);
+
                                 let select = <Select
                                     items={entity.items}
 
@@ -98,7 +113,6 @@ class EntityField extends Component<EntityFieldProps> {
                     if (true) {
                         // All other types
                         const renderInputGroup = (ref, props) => {
-
                             return <InputGroup inputRef={ref as any} {...props}
                                                placeholder={label}
                                                leftIcon={field.icon as any} large={false}

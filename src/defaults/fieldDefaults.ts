@@ -149,11 +149,11 @@ export const fieldDefaults: FieldDefaults[] = [
         }
     },
     {
-        match: [/date/],
+        match: [/[Dd]ate/],
         info: {
             icon: 'calendar',
             // Add mask
-            type: EntityFieldType.number,
+            type: EntityFieldType.date,
             mask: {
                 mask: [/\d/, /\d/, '/', /\d/, /\d/, '/', /\d/, /\d/, /\d/, /\d/],
                 pipe: createAutoCorrectedDatePipe('dd/mm/yyyy'),
