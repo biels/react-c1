@@ -1,6 +1,6 @@
 import React, {Component, ComponentType, Ref} from 'react';
 import styled from 'styled-components';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import {Action} from '../page-templates/components/PageHeader/components/ActionArea';
 import {Button, getKeyComboString, InputGroup, Intent} from '@blueprintjs/core';
 import {AgGridColumnProps, AgGridReact, AgGridReactProps} from 'ag-grid-react';
@@ -308,6 +308,13 @@ class EntityGrid extends Component<EntityGridProps> {
 
                         let creationDialog;
                         if (CreationComponent != null && isCreateImplemented) {
+                            let oldAssociate: EntityRenderProps = this.props.associate as EntityRenderProps;
+                            let associate: {[entityName: string]: EntityRenderProps};
+                            if(oldAssociate != null && _.isFunction(oldAssociate.selectId)){
+                                associate = {[oldAssociate.entityInfo.name]: oldAssociate}
+                            }else{
+                                associate = this.props.associate as {[entityName: string]: EntityRenderProps}
+                            }
                             const handleCreationDialogClose = () => {
                                 this.setState({creationDialogOpen: false})
                             }
@@ -335,30 +342,29 @@ class EntityGrid extends Component<EntityGridProps> {
                                                    associate={this.props.associate}
                                                    transform={(v) => {
                                                        // TODO Convert to object. If raw entity, use fallback method
-                                                       let associate = this.props.associate;
                                                        if (associate == null) return v;
-                                                       let associate1 = (associate as EntityRenderProps);
-                                                       if(associate1.create != null){
-                                                           // Legacy
-                                                           if (associate1.selectedItem == null) {
-                                                               console.log(`Could not associate with a ${associate1.entityInfo.name}. No item selected`);
-                                                               return v;
-                                                           }
-
-                                                           return ({
-                                                               ...v,
-                                                               [associate1.entityInfo.name]: {connect: {id: associate1.selectedItem.id}}
-                                                           });
-                                                       }else{
-                                                           //New associate format
-                                                           return {
-                                                               ...v,
-                                                               ..._.mapValues(associate, (a) => {
-                                                                   if(a == null) return undefined;
-                                                                   return {connect: {id: a.selectedItem.id}}
-                                                               })
-                                                           }
+                                                       return {
+                                                           ...v,
+                                                           ..._.mapValues(associate, (a) => {
+                                                               if(a == null) return undefined;
+                                                               if (a.selectedItem == null) {
+                                                                   console.log(`Could not associate with a ${a.entityInfo.name}. No item selected`);
+                                                               }
+                                                               return {connect: {id: a.selectedItem.id}}
+                                                           })
                                                        }
+                                                       // if(associate.create != null){
+                                                       //     // Legacy
+                                                       //
+                                                       //
+                                                       //     return ({
+                                                       //         ...v,
+                                                       //         [associate.entityInfo.name]: {connect: {id: associate.selectedItem.id}}
+                                                       //     });
+                                                       // }else{
+                                                       //     //New associate format
+                                                       //
+                                                       // }
                                                    }}/>
                             </GenericDialog>
                         }

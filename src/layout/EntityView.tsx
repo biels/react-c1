@@ -1,11 +1,13 @@
 import React, {Component, ComponentType} from 'react';
-import _ from "lodash";
+import * as _ from "lodash";
 import {Form, FormProps, FormRenderProps} from "react-final-form";
 import {Action} from "../page-templates/components/PageHeader/components/ActionArea";
 import {FormApi} from "final-form";
 import EntityField from "./EntityField";
 import FormAutoSave from "./FormAutoSave";
-import {EntityRenderProps, EntityFieldInfo, EntityProps, Entity, EntityContextProvider} from 'react-entity-plane';
+import {Entity, EntityContextProvider, EntityFieldInfo, EntityProps, EntityRenderProps} from 'react-entity-plane';
+import {EntityFieldType} from "react-entity-plane/src/types/fieldsInfo";
+import {renderToJson} from "enzyme-to-json";
 
 
 interface FormWrapperRenderProps {
@@ -90,7 +92,7 @@ class EntityView extends Component<EntityViewProps> {
             const renderExtraFields = (inForm) => {
                 const pendingFields = entity.entityInfo.fields.filter(f => !rendered.includes(f.name))
                     .filter(f => !_.entries(this.props.associate)
-                        .filter(e => e[0] != null)
+                        .filter(e => e[1] != null)
                         .map(e => e[0])
                         .includes(f.name)
                     )
@@ -117,9 +119,26 @@ class EntityView extends Component<EntityViewProps> {
                     this.onSubmit(entity, values, mode as any, form, callback);
                     this.props.afterSubmit()
                 };
-                let fieldNames = entity.entityInfo.fields.map(f => f.name);
+                let valueFieldNames = entity.entityInfo.fields
+                    .filter(f => f.type !== EntityFieldType.relation)
+                    .map(f => f.name);
+                let relationFieldNames = entity.entityInfo.fields
+                    .filter(f => f.type === EntityFieldType.relation)
+                    .map(f => f.name);
                 let initialValues = {};
-                if (editing) initialValues = _.pick(entity.selectedItem, fieldNames);
+                if (editing) {
+                    initialValues = _.pick(entity.selectedItem, valueFieldNames);
+                    initialValues = {
+                        ...initialValues, ...relationFieldNames.map(rf => {
+                            if(entity.selectedItem == null) return null;
+                            let selectedItemElement = entity.selectedItem[rf];
+                            if(selectedItemElement == null) return null;
+                            return {[rf]: {connect: {id: selectedItemElement.id}}}
+                        }).reduce( (previousValue, currentValue, i) => {
+                            return Object.assign(previousValue, currentValue)
+                        }, {})
+                    }
+                }
                 if (creating) initialValues = entity.entityInfo.fields
                     .map(f => (f.default != null ? {[f.name]: f.default} : {}))
                     .reduce((o1, o2) => Object.assign(o1, o2), {})
@@ -130,7 +149,7 @@ class EntityView extends Component<EntityViewProps> {
                         if (this.props.onSubmitReady) this.props.onSubmitReady(form.handleSubmit)
                         return <form onSubmit={form.handleSubmit}>
                             {(editing && !creating) &&
-                            <FormAutoSave debounce={350} values={form.values} save={handleSubmit as any}/>}
+                            <FormAutoSave debounce={400} values={form.values} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
                             {/*<button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={false}>Hidden*/}
                             {/*submit*/}

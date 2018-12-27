@@ -87,7 +87,8 @@ class EntityField extends Component<EntityFieldProps> {
                                 const displayItems = entity.items
                                 if (formInput.value == null && entity.selectedItem != null) return null;
 
-                                entity.selectId(_.get(formInput.value, 'connect.id', null), false);
+                                let id = _.get(formInput.value, 'connect.id', null);
+                                entity.selectId(id, false);
 
                                 let select = <Select
                                     items={entity.items}
