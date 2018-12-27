@@ -83,8 +83,10 @@ class EntityField extends Component<EntityFieldProps> {
                         if (relationInfo.type === 'multi') return null;
                         return <Entity name={relationInfo.entityName}>
                             {(entity) => {
-                                console.log(`Entity`, entity);
+                                //console.log(`Entity`, entity);
                                 const displayItems = entity.items
+                                if (formInput.value == null && entity.selectedItem != null) return null;
+
                                 entity.selectId(_.get(formInput.value, 'connect.id', null), false);
 
                                 let select = <Select
@@ -95,7 +97,7 @@ class EntityField extends Component<EntityFieldProps> {
                                                          text={getDisplayName(item)}/>;
                                     }}
                                     onItemSelect={(item, event) => {
-                                        console.log(`selected `, item);
+                                        //console.log(`selected `, item);
                                         entity.selectId(item.id as any)
                                         // Change to support different association formats
                                         formInput.onChange({connect: {id: item.id}});

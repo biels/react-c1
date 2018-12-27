@@ -5,7 +5,7 @@ import {Action} from "../page-templates/components/PageHeader/components/ActionA
 import {FormApi} from "final-form";
 import EntityField from "./EntityField";
 import FormAutoSave from "./FormAutoSave";
-import {EntityRenderProps, EntityFieldInfo, EntityProps, Entity} from 'react-entity-plane';
+import {EntityRenderProps, EntityFieldInfo, EntityProps, Entity, EntityContextProvider} from 'react-entity-plane';
 
 
 interface FormWrapperRenderProps {
@@ -24,6 +24,7 @@ export interface EntityViewProps {
     relation?: EntityProps['relation']
     root?: EntityProps['root']
     entity?: EntityRenderProps
+    associate: { [fieldName: string]: EntityRenderProps }
 
     ids?: EntityProps['ids']
     index?: number
@@ -66,12 +67,14 @@ class EntityView extends Component<EntityViewProps> {
 
     render() {
         if (this.props.children == null) return null;
-        if(this.props.creating && this.props.editing) return 'Creating and editing at the same time';
+        if (this.props.creating && this.props.editing) return 'Creating and editing at the same time';
         let renderWithEntity = (entity: EntityRenderProps) => {
             if (entity == null) return <div>No entity provided</div>;
             const renderWithWrapper = (inner, form?) => {
-                let inside = <>{inner}
-                    {renderExtraFields(form != null)}</>;
+                let inside = <EntityContextProvider rootEntityId={this.props.entity.selectedId}>
+                    {inner}
+                    {renderExtraFields(form != null)}
+                </EntityContextProvider>;
                 if (this.props.wrapper != null) {
                     const Wrapper = this.props.wrapper
                     if (Wrapper != null) {
@@ -85,7 +88,12 @@ class EntityView extends Component<EntityViewProps> {
                 return inside;
             }
             const renderExtraFields = (inForm) => {
-                const pendingFields = entity.entityInfo.fields.filter(f => !rendered.includes(f.name));
+                const pendingFields = entity.entityInfo.fields.filter(f => !rendered.includes(f.name))
+                    .filter(f => !_.entries(this.props.associate)
+                        .filter(e => e[0] != null)
+                        .map(e => e[0])
+                        .includes(f.name)
+                    )
                 return pendingFields.map(f => field(inForm, false)(f.name))
             }
             const rendered = [];
@@ -96,7 +104,7 @@ class EntityView extends Component<EntityViewProps> {
                                     creating={creating}/>
             }
 
-            let creating = this.props.creating ;
+            let creating = this.props.creating;
             let editing = this.props.editing;
             if (creating) editing = false;
             if (editing) creating = false;
@@ -121,10 +129,11 @@ class EntityView extends Component<EntityViewProps> {
                     {(form) => {
                         if (this.props.onSubmitReady) this.props.onSubmitReady(form.handleSubmit)
                         return <form onSubmit={form.handleSubmit}>
-                            {(editing && !creating) && <FormAutoSave debounce={100} values={form.values} save={handleSubmit as any}/>}
+                            {(editing && !creating) &&
+                            <FormAutoSave debounce={350} values={form.values} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
                             {/*<button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={false}>Hidden*/}
-                                {/*submit*/}
+                            {/*submit*/}
                             {/*</button>*/}
                         </form>
                     }}

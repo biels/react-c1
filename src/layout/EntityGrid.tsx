@@ -103,7 +103,7 @@ export interface EntityGridProps {
     onRowDoubleClicked?: (data: { id: number | string }, e: AgGridEvent) => any;
     selectAllFilter?: (it) => boolean
     selectAllText?: string
-    associate?: EntityRenderProps
+    associate?: {[entityName: string]: EntityRenderProps} | EntityRenderProps
 }
 
 let gridId = 0;
@@ -299,7 +299,7 @@ class EntityGrid extends Component<EntityGridProps> {
                         // Apply defaults where not set
                         const getDefaultsForColumn = (fieldName): Partial<AgGridColumnProps> => {
                             const info = entity.entityInfo.fields.find(f => f.name === fieldName)
-                            if(info == null) return {};
+                            if (info == null) return {};
                             let cellEditor: AgGridColumnProps['cellEditor'] = 'agTextCellEditor';
                             if (info.type === EntityFieldType.textarea) cellEditor = 'agLargeTextCellEditor';
                             return {headerName: info.label, cellEditor, editable: true}
@@ -332,17 +332,33 @@ class EntityGrid extends Component<EntityGridProps> {
                             >
                                 <CreationComponent entity={entity} creating afterSubmit={handleCreationDialogClose}
                                                    onSubmitReady={handleSubmitReady}
+                                                   associate={this.props.associate}
                                                    transform={(v) => {
+                                                       // TODO Convert to object. If raw entity, use fallback method
                                                        let associate = this.props.associate;
                                                        if (associate == null) return v;
-                                                       if (associate.selectedItem == null) {
-                                                           console.log(`Could not associate with a ${associate.entityInfo.name}. No item selected`);
-                                                           return v;
+                                                       let associate1 = (associate as EntityRenderProps);
+                                                       if(associate1.create != null){
+                                                           // Legacy
+                                                           if (associate1.selectedItem == null) {
+                                                               console.log(`Could not associate with a ${associate1.entityInfo.name}. No item selected`);
+                                                               return v;
+                                                           }
+
+                                                           return ({
+                                                               ...v,
+                                                               [associate1.entityInfo.name]: {connect: {id: associate1.selectedItem.id}}
+                                                           });
+                                                       }else{
+                                                           //New associate format
+                                                           return {
+                                                               ...v,
+                                                               ..._.mapValues(associate, (a) => {
+                                                                   if(a == null) return undefined;
+                                                                   return {connect: {id: a.selectedItem.id}}
+                                                               })
+                                                           }
                                                        }
-                                                       return ({
-                                                           ...v,
-                                                           [associate.entityInfo.name]: {connect: {id: associate.selectedItem.id}}
-                                                       });
                                                    }}/>
                             </GenericDialog>
                         }
