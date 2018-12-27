@@ -139,6 +139,7 @@ class EntityView extends Component<EntityViewProps> {
                         }, {})
                     }
                 }
+                // TODO Initial values should already contain associations, and if associations are enforced the fields should be ommitted and if present they should be rendered as disabled
                 if (creating) initialValues = entity.entityInfo.fields
                     .map(f => (f.default != null ? {[f.name]: f.default} : {}))
                     .reduce((o1, o2) => Object.assign(o1, o2), {})
@@ -149,7 +150,7 @@ class EntityView extends Component<EntityViewProps> {
                         if (this.props.onSubmitReady) this.props.onSubmitReady(form.handleSubmit)
                         return <form onSubmit={form.handleSubmit}>
                             {(editing && !creating) &&
-                            <FormAutoSave debounce={400} values={form.values} save={handleSubmit as any}/>}
+                            <FormAutoSave debounce={1200} form={form} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
                             {/*<button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={false}>Hidden*/}
                             {/*submit*/}

@@ -88,24 +88,25 @@ class EntityField extends Component<EntityFieldProps> {
                                 if (formInput.value == null && entity.selectedItem != null) return null;
 
                                 let id = _.get(formInput.value, 'connect.id', null);
-                                entity.selectId(id, false);
-
+                                //entity.selectId(id, false);
+                                let selectedItem = entity.items.find(it => it.id === id);
+                                //console.log(`id ${id}`, selectedItem);
+                                //console.log(`ActiveItem`, selectedItem);
                                 let select = <Select
                                     items={entity.items}
-
                                     itemRenderer={(item, info) => {
                                         return <MenuItem onClick={info.handleClick} disabled={false}
                                                          text={getDisplayName(item)}/>;
                                     }}
                                     onItemSelect={(item, event) => {
                                         //console.log(`selected `, item);
-                                        entity.selectId(item.id as any)
+                                        //entity.selectId(item.id as any)
                                         // Change to support different association formats
                                         formInput.onChange({connect: {id: item.id}});
                                     }}
-                                    activeItem={entity.selectedItem}
+                                    activeItem={selectedItem}
                                     filterable={true}>
-                                    <Button text={getDisplayName(entity.selectedItem)} rightIcon="double-caret-vertical"
+                                    <Button text={getDisplayName(selectedItem)} rightIcon="double-caret-vertical"
                                             icon={entity.entityInfo.display.icon}/>
                                 </Select>;
                                 return renderFormGroup(formInput, select)
