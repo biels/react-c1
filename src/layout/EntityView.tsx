@@ -26,7 +26,7 @@ export interface EntityViewProps {
     relation?: EntityProps['relation']
     root?: EntityProps['root']
     entity?: EntityRenderProps
-    associate: { [fieldName: string]: EntityRenderProps }
+    associate: { [fieldName: string]: EntityRenderProps } | EntityRenderProps
 
     ids?: EntityProps['ids']
     index?: number
@@ -126,23 +126,52 @@ class EntityView extends Component<EntityViewProps> {
                     .filter(f => f.type === EntityFieldType.relation)
                     .map(f => f.name);
                 let initialValues = {};
+
                 if (editing) {
+                    let associationValues = relationFieldNames.map(rf => {
+                        if (entity.selectedItem == null) return null;
+                        console.log(`entity`, entity);
+                        let selectedItemElement = entity.selectedItem[rf];
+                        if (selectedItemElement == null) return null;
+                        return {[rf]: {connect: {id: selectedItemElement.id}}}
+                    }).reduce((previousValue, currentValue, i) => {
+                        return Object.assign(previousValue, currentValue)
+                    }, {});
                     initialValues = _.pick(entity.selectedItem, valueFieldNames);
                     initialValues = {
-                        ...initialValues, ...relationFieldNames.map(rf => {
-                            if(entity.selectedItem == null) return null;
-                            let selectedItemElement = entity.selectedItem[rf];
-                            if(selectedItemElement == null) return null;
-                            return {[rf]: {connect: {id: selectedItemElement.id}}}
-                        }).reduce( (previousValue, currentValue, i) => {
-                            return Object.assign(previousValue, currentValue)
-                        }, {})
+                        ...initialValues, ...associationValues
                     }
                 }
-                // TODO Initial values should already contain associations, and if associations are enforced the fields should be ommitted and if present they should be rendered as disabled
-                if (creating) initialValues = entity.entityInfo.fields
-                    .map(f => (f.default != null ? {[f.name]: f.default} : {}))
-                    .reduce((o1, o2) => Object.assign(o1, o2), {})
+                // TODO Initial values should already contain associations, and if associations are enforced the fields
+                // should be ommitted and if present they should be rendered as disabled
+                if (creating) {
+                    let oldAssociate: EntityRenderProps = this.props.associate as EntityRenderProps;
+                    let associate: {[entityName: string]: EntityRenderProps};
+                    console.log(`associate`, this.props.associate, associate);
+                    if(oldAssociate != null && _.isFunction(oldAssociate.selectId)){
+                        associate = {[oldAssociate.entityInfo.name]: oldAssociate}
+                    }else{
+                        associate = this.props.associate as {[entityName: string]: EntityRenderProps}
+                    }
+                    let associationValues = relationFieldNames.filter(rf => _.keys(associate).includes(rf))
+                        .map(rf => {
+                            const associateElement = associate[rf];
+                            console.log('associateElement', associateElement);
+                            if (associateElement == null) return null;
+                            let selectedItem = associateElement.selectedItem;
+                            if (selectedItem == null) return null;
+                            return {[rf]: {connect: {id: selectedItem.id}}}
+                        }).reduce((previousValue, currentValue, i) => {
+                            return Object.assign(previousValue, currentValue)
+                        }, {});
+                    initialValues = entity.entityInfo.fields
+                        .map(f => (f.default != null ? {[f.name]: f.default} : {}))
+                        .reduce((o1, o2) => Object.assign(o1, o2), {})
+                    initialValues = {
+                        ...initialValues, ...associationValues
+                    }
+                    console.log(`Creating associationValues`, associationValues);
+                }
                 return <Form onSubmit={handleSubmit}
                              initialValues={initialValues}
                 >
