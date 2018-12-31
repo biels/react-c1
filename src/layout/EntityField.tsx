@@ -70,7 +70,7 @@ class EntityField extends Component<EntityFieldProps> {
                             parseDate={parseDate}
                             formatDate={formatDate}
                             {...formInput}
-                            value={formInput.value || null}
+                            value={formInput.value ? new Date(formInput.value) : null}
                             placeholder={label}
                         />)
                     }

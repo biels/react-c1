@@ -116,7 +116,7 @@ class EntityView extends Component<EntityViewProps> {
             //if (!entity.single) editing = entity.editingIndex == this.props.index;
             if (editing || creating) {
                 const handleSubmit: FormProps['onSubmit'] = (values, form, callback) => {
-                    console.log(`Mode`, mode);
+                    // console.log(`Mode`, mode);
                     this.onSubmit(entity, values, mode as any, form, callback);
                     this.props.afterSubmit()
                 };
@@ -131,7 +131,6 @@ class EntityView extends Component<EntityViewProps> {
                 if (editing) {
                     let associationValues = relationFieldNames.map(rf => {
                         if (entity.selectedItem == null) return null;
-                        console.log(`entity`, entity);
                         let selectedItemElement = entity.selectedItem[rf];
                         if (selectedItemElement == null) return null;
                         return {[rf]: {connect: {id: selectedItemElement.id}}}
@@ -148,7 +147,7 @@ class EntityView extends Component<EntityViewProps> {
                 if (creating) {
                     let oldAssociate: EntityRenderProps = this.props.associate as EntityRenderProps;
                     let associate: {[entityName: string]: EntityRenderProps};
-                    console.log(`associate`, this.props.associate, associate);
+                    // console.log(`associate`, this.props.associate, associate);
                     if(oldAssociate != null && _.isFunction(oldAssociate.selectId)){
                         associate = {[oldAssociate.entityInfo.name]: oldAssociate}
                     }else{
