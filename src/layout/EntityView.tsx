@@ -26,7 +26,7 @@ export interface EntityViewProps {
     relation?: EntityProps['relation']
     root?: EntityProps['root']
     entity?: EntityRenderProps
-    associate: { [fieldName: string]: EntityRenderProps } | EntityRenderProps
+    associate?: { [fieldName: string]: EntityRenderProps } | EntityRenderProps
 
     ids?: EntityProps['ids']
     index?: number
@@ -48,7 +48,8 @@ export interface EntityViewProps {
 class EntityView extends Component<EntityViewProps> {
     static defaultProps: Partial<EntityViewProps> = {
         transform: (values) => values,
-        afterSubmit: () => null
+        afterSubmit: () => null,
+        associate: {}
     }
     onSubmit = (entity, values, mode, form, callback) => {
         values = this.props.transform(values)
