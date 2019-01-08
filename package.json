@@ -61,6 +61,7 @@
   "dependencies": {
     "@blueprintjs/datetime": "^3.5.0",
     "@blueprintjs/select": "^3.4.0",
+    "@types/moment": "^2.13.0",
     "ag-grid-community": "^19.1.4",
     "ag-grid-react": "^19.1.2",
     "deep-object-diff": "^1.1.0",

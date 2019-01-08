@@ -1,15 +1,24 @@
 import React, {Component, ComponentType, Ref} from 'react';
 import styled from 'styled-components';
 import * as _ from 'lodash';
+import moment from "moment";
+
 import {Action} from '../page-templates/components/PageHeader/components/ActionArea';
-import {Button, getKeyComboString, InputGroup, Intent} from '@blueprintjs/core';
+import {Button, getKeyComboString, Icon, InputGroup, Intent} from '@blueprintjs/core';
 import {AgGridColumnProps, AgGridReact, AgGridReactProps} from 'ag-grid-react';
 import Actions from '../page-templates/Actions/Actions';
-import {AgGridEvent, GridApi, RowClickedEvent, RowNode, RowSelectedEvent} from 'ag-grid-community';
+import {
+    AgGridEvent, GridApi, RowClickedEvent, RowNode, RowSelectedEvent, ICellRendererParams, ICellRendererFunc,
+    ICellRendererComp
+} from 'ag-grid-community';
 import ErrorBoundary from '../page-templates/ErrorBoundary';
 import GenericDialog from "./GenericDialog";
 import {toaster} from "../index";
-import {EntityProps, EntityRenderProps, EntityInfoKey, Entity, EntityFieldType} from 'react-entity-plane';
+import {Entity, EntityFieldType, EntityInfoKey, EntityProps, EntityRenderProps} from 'react-entity-plane';
+import {getDisplayName} from "../page-templates/utils/getDisplayName";
+import {ICellRendererReactComp} from "ag-grid-react/lib/interfaces";
+import {EntityInfo} from 'react-entity-plane/src/types/entities';
+import {parseDate, formatDate} from "../page-templates/utils/dateUtils";
 
 // const OldContainer = styled.div`
 //     height: 100%;
@@ -103,7 +112,7 @@ export interface EntityGridProps {
     onRowDoubleClicked?: (data: { id: number | string }, e: AgGridEvent) => any;
     selectAllFilter?: (it) => boolean
     selectAllText?: string
-    associate?: {[entityName: string]: EntityRenderProps} | EntityRenderProps
+    associate?: { [entityName: string]: EntityRenderProps } | EntityRenderProps
 }
 
 let gridId = 0;
@@ -182,7 +191,22 @@ class EntityGrid extends Component<EntityGridProps> {
         this.gridApi.setQuickFilter(null);
     };
 
-
+    defaultCellRenderers = (): { [name: string]: any } => {
+        return {
+            relationCellRenderer: (params: ICellRendererParams) => {
+                // EntityInfo, path
+                if (params.value == null) return null;
+                let entityInfo: EntityInfo = (params as any).entityInfo;
+                return <div><Icon style={{color: '#A8B4BD'}} icon={_.get(entityInfo, 'display.icon')}/><span
+                    style={{paddingLeft: 4}}>{getDisplayName(params.value)}</span></div>;
+            },
+            dateCellRenderer: (params: ICellRendererParams) => {
+                    if(params.value == null) return null;
+                return <div><Icon style={{color: '#A8B4BD'}} icon={'calendar'}/><span
+                    style={{paddingLeft: 4}}>{formatDate(params.value)}</span></div>;
+            }
+        }
+    }
     // shouldComponentUpdate(newProps, newState) {
     //     // if() return false;
     //     return _.isEqual(this.props, newProps);
@@ -298,22 +322,65 @@ class EntityGrid extends Component<EntityGridProps> {
                         columnDefs = [...columnDefs, ...getExtraColumns()]
                         // Apply defaults where not set
                         const getDefaultsForColumn = (fieldName): Partial<AgGridColumnProps> => {
-                            const info = entity.entityInfo.fields.find(f => f.name === fieldName)
-                            if (info == null) return {};
+                            let entityInfo = entity.entityInfo;
+                            const field = entityInfo.fields.find(f => f.name === fieldName)
+                            if (field == null) return {};
                             let cellEditor: AgGridColumnProps['cellEditor'] = 'agTextCellEditor';
-                            if (info.type === EntityFieldType.textarea) cellEditor = 'agLargeTextCellEditor';
-                            return {headerName: info.label, cellEditor, editable: true}
+                            let cellRenderer = null;
+                            let cellRendererParams: any = {};
+                            let valueFormatter;
+                            let valueParser;
+                            let valueGetter;
+                            let valueSetter;
+                            let editable = true;
+                            if (field.type === EntityFieldType.textarea) cellEditor = 'agLargeTextCellEditor';
+                            if (field.type === EntityFieldType.relation) {
+                                // Relation field, set renderer and editor
+                                const relationInfo = entityInfo.relations[field.name];
+                                if (relationInfo == null) {
+                                    console.log(`Could not find relation info for ${field.name} in ${entityInfo.name}`);
+                                    return null;
+                                }
+                                let relationEntityInfo = entity.getEntityInfo(relationInfo.entityName)
+                                if (relationInfo.type === 'multi') return null;
+                                cellRendererParams.entityInfo = relationEntityInfo;
+                                cellRenderer = 'relationCellRenderer';
+                                editable = false;
+                            }
+                            if (field.type === EntityFieldType.date) {
+                                //Date field
+
+                                // valueFormatter = formatDate
+                                // valueParser = parseDate
+                                cellRenderer = 'dateCellRenderer';
+                                editable = false
+                            }
+                            if (field.type === EntityFieldType.enum) {
+                                //Enum field
+                                editable = false
+                            }
+                            return {
+                                headerName: field.label,
+                                cellEditor,
+                                cellRenderer: cellRenderer,
+                                editable,
+                                cellRendererParams,
+                                valueFormatter,
+                                valueParser,
+                                valueGetter,
+                                valueSetter
+                            }
                         }
                         columnDefs = columnDefs.map(cd => ({...getDefaultsForColumn(cd.field), ...cd}))
 
                         let creationDialog;
                         if (CreationComponent != null && isCreateImplemented) {
                             let oldAssociate: EntityRenderProps = this.props.associate as EntityRenderProps;
-                            let associate: {[entityName: string]: EntityRenderProps};
-                            if(oldAssociate != null && _.isFunction(oldAssociate.selectId)){
+                            let associate: { [entityName: string]: EntityRenderProps };
+                            if (oldAssociate != null && _.isFunction(oldAssociate.selectId)) {
                                 associate = {[oldAssociate.entityInfo.name]: oldAssociate}
-                            }else{
-                                associate = this.props.associate as {[entityName: string]: EntityRenderProps}
+                            } else {
+                                associate = this.props.associate as { [entityName: string]: EntityRenderProps }
                             }
                             const handleCreationDialogClose = () => {
                                 this.setState({creationDialogOpen: false})
@@ -346,7 +413,7 @@ class EntityGrid extends Component<EntityGridProps> {
                                                        return {
                                                            ...v,
                                                            ..._.mapValues(associate, (a) => {
-                                                               if(a == null) return undefined;
+                                                               if (a == null) return undefined;
                                                                if (a.selectedItem == null) {
                                                                    console.log(`Could not associate with a ${a.entityInfo.name}. No item selected`);
                                                                }
@@ -359,12 +426,9 @@ class EntityGrid extends Component<EntityGridProps> {
                                                        //
                                                        //     return ({
                                                        //         ...v,
-                                                       //         [associate.entityInfo.name]: {connect: {id: associate.selectedItem.id}}
-                                                       //     });
-                                                       // }else{
-                                                       //     //New associate format
-                                                       //
-                                                       // }
+                                                       //         [associate.entityInfo.name]: {connect: {id:
+                                                       // associate.selectedItem.id}} }); }else{ //New associate format
+                                                       //  }
                                                    }}/>
                             </GenericDialog>
                         }
@@ -443,7 +507,7 @@ class EntityGrid extends Component<EntityGridProps> {
             enableFilter
             floatingFilter
             rowSelection={'multiple'}
-            frameworkComponents={this.props.frameworkComponents as any}
+            frameworkComponents={_.defaults(this.props.frameworkComponents, this.defaultCellRenderers()) as any}
             columnDefs={columnDefs}
             isExternalFilterPresent={this.isExternalFilterPresent(entity)}
             doesExternalFilterPass={this.doesExternalFilterPass(entity)}

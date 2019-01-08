@@ -29,6 +29,7 @@ class EntityField extends Component<EntityFieldProps> {
             console.log(`Field ${name} is not defined on ${entityInfo.name}`);
             return null;
         }
+        // TODO Generalize
         const matchingDefaults = fieldDefaults.filter(fd => {
             let match: (string | RegExp)[] = fd.match as any;
             if (!_.isArray(match)) match = [match]
