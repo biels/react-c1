@@ -79,7 +79,7 @@ class EntityField extends Component<EntityFieldProps> {
                         const values = field.values || [];
                         const selectedValue = values.find((v) => v.value === formInput.value)
                         const select =  <Select items={values}
-                                       itemRenderer={(item, itemProps) => <MenuItem text={item.display || item.value} icon={item.icon} intent={item.intent}/>}
+                                       itemRenderer={(item, info) => <MenuItem onClick={info.handleClick} text={item.display || item.value} icon={item.icon} intent={item.intent}/>}
                                        onItemSelect={(item, event) => formInput.onChange(item.value)}>
                             <Button rightIcon="double-caret-vertical"
                                     icon={selectedValue.icon}>{selectedValue.display || selectedValue.value}</Button>
