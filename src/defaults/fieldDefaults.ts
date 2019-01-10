@@ -8,6 +8,7 @@ const eurMask = createNumberMask({
     prefix: '',
     suffix: ' €', // This will put the dollar sign at the end, with a space.
     includeThousandsSeparator: true,
+    allowDecimal: true,
 })
 
 const percentMask = createNumberMask({
@@ -90,6 +91,9 @@ export const fieldDefaults: FieldDefaults[] = [
         info: {
             icon: 'euro',
             type: EntityFieldType.number,
+            mask: {
+                mask: eurMask
+            },
             validation: {
                 min: 0,
                 decimals: 2
@@ -138,7 +142,7 @@ export const fieldDefaults: FieldDefaults[] = [
             label: 'Email',
             type: EntityFieldType.email,
             mask: {
-                mask: emailMask
+                mask: emailMask,
             }
         }
     },
