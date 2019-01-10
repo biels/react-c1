@@ -38,7 +38,7 @@ class EntityField extends Component<EntityFieldProps> {
             return match.some(m => _.isRegExp(m) ? m.test(name) : m === name)
         }).map(md => md.info);
         const field: EntityFieldInfo = _.defaultsDeep({}, specificInfo, baseInfo, ...matchingDefaults);
-        const validation = (field || {} as any).validation
+        const validation = (field || {} as any).validation || {}
         const mask = (field || {} as any).mask
         const hasMask = mask != null && mask.mask != null;
         const isBoolean = field.type === EntityFieldType.boolean;
@@ -46,21 +46,33 @@ class EntityField extends Component<EntityFieldProps> {
         if (this.props.inForm) {
             let parse, format;
             if (field.type === EntityFieldType.number) {
-                parse = v => v && parseInt(v)
-                format = v => (v || '').toString()
+                parse = v => v && parseFloat(v)
+                format = v => {
+                    if(v == null) return null;
+                    return (v.toFixed(validation.decimals || 0) || '').toString();
+                }
             }
 
             let validate = (value, allValues) => {
-                if(value == null && field.required) return 'required';
+                if (validation.maxLength && value.toString().length > validation.maxLength) return 'length exceeded';
+                if (validation.minLength && value.toString().length < validation.maxLength) return 'length not fulfilled';
+                if (validation.max && value > validation.max) return 'max not fulfilled';
+                if (validation.min && value < validation.min) return 'min not fulfilled';
+                if (validation.match && validation.match.test(value.toString())) return 'match not fulfilled';
+                if (validation.custom) return validation.custom(value, allValues);
+                if (value == null && field.required) return 'required';
                 return undefined;
             };
             return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined} parse={parse}
-                                                                                 format={format} validate={validate}>
+                              format={format} validate={validate}>
                 {({input: formInput, meta}) => {
+                    let showInvalid = (meta.invalid && !this.props.creating) || ((meta.touched || meta.submitError) && meta.invalid);
+                    let intent = (meta.error && showInvalid) ? Intent.DANGER : null;
                     const renderFormGroup = (props, input) => {
                         let helperText = [field.help, !mask ? undefined : '(Mask)'].join(' ');
                         let label = [field.label || field.name].join(' ');
-                        return <FormGroup label={label} labelInfo={!field.required ? '(opcional)' : undefined} helperText={helperText} intent={(meta.error && meta.submitFailed) ? Intent.DANGER : null }>
+                        return <FormGroup label={label} labelInfo={!field.required ? '(opcional)' : undefined}
+                                          helperText={helperText} intent={intent}>
                             {input}
                         </FormGroup>;
                     }
@@ -91,11 +103,16 @@ class EntityField extends Component<EntityFieldProps> {
                             value: null
                         };
                         const selectedValue = values.find((v) => v.value === formInput.value) || emptyItem
-                        const select =  <Select items={values}
-                                       itemRenderer={(item, info) => <MenuItem onClick={info.handleClick} text={item.display || item.value} icon={item.icon} intent={item.intent}/>}
-                                       onItemSelect={(item, event) => formInput.onChange(item.value)}>
+                        const select = <Select items={values}
+                                               itemRenderer={(item, info) => <MenuItem onClick={info.handleClick}
+                                                                                       text={item.display || item.value}
+                                                                                       icon={item.icon}
+                                                                                       intent={item.intent}/>}
+                                               onItemSelect={(item, event) => formInput.onChange(item.value)}>
                             <Button rightIcon="double-caret-vertical"
-                                    icon={selectedValue.icon}>{selectedValue.display || selectedValue.value}</Button>
+                                    icon={selectedValue.icon}
+                                    intent={selectedValue.showThrough ? selectedValue.intent : intent}
+                            >{selectedValue.display || selectedValue.value}</Button>
                         </Select>
                         return renderFormGroup(formInput, select)
                     }
@@ -146,7 +163,7 @@ class EntityField extends Component<EntityFieldProps> {
                                                placeholder={label}
                                                leftIcon={field.icon as any} large={false}
                                                autoComplete={'offf'}
-
+                                               intent={intent}
                             />;
                         };
 

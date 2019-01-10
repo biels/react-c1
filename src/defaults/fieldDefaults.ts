@@ -89,7 +89,11 @@ export const fieldDefaults: FieldDefaults[] = [
         match: [/[Pp]rice/],
         info: {
             icon: 'euro',
-            type: EntityFieldType.number
+            type: EntityFieldType.number,
+            validation: {
+                min: 0,
+                decimals: 2
+            }
         },
     },
     {
@@ -102,7 +106,7 @@ export const fieldDefaults: FieldDefaults[] = [
         match: ['ip', 'ipAddress'],
         info: {
             icon: 'ip-address',
-            type: EntityFieldType.string
+            type: EntityFieldType.string,
         }
     },{
         match: ['code', 'barcode', /product/],
@@ -142,7 +146,7 @@ export const fieldDefaults: FieldDefaults[] = [
         match: ['postalCode'],
         info: {
             icon: 'map',
-            type: EntityFieldType.email,
+            type: EntityFieldType.string,
             mask: {
                 mask: [/\d/, /\d/, /\d/, /\d/, /\d/]
             }
