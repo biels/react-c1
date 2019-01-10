@@ -8,7 +8,7 @@ import {EntityProps} from 'react-entity-plane/src/Entity';
 const DefaultContainer = styled.div`
     height: 100%;
     display: grid;
-    grid-template-columns: 2fr 1fr;
+    grid-template-columns: minmax(50%, 2fr) 1fr;
     grid-gap: 8px;
     padding: 8px;
 `;

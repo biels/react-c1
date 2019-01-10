@@ -10,7 +10,12 @@ const eurMask = createNumberMask({
     includeThousandsSeparator: true,
     allowDecimal: true,
 })
-
+const simpleEurMask = createNumberMask({
+    prefix: '',
+    suffix: '', // This will put the dollar sign at the end, with a space.
+    includeThousandsSeparator: false,
+    allowDecimal: true,
+})
 const percentMask = createNumberMask({
     prefix: '',
     suffix: ' %', // This will put the dollar sign at the end, with a space.
@@ -50,7 +55,7 @@ export const fieldDefaults: FieldDefaults[] = [
             icon: 'geolocation',
         }
     },{
-        match: [/key/],
+        match: [/[Kk]ey/],
         info: {
             icon: 'key',
         }
@@ -92,12 +97,16 @@ export const fieldDefaults: FieldDefaults[] = [
             icon: 'euro',
             type: EntityFieldType.number,
             mask: {
-                mask: eurMask
-            },
-            validation: {
-                min: 0,
-                decimals: 2
+                mask: simpleEurMask
             }
+        },
+    },
+    {
+        match: [/[Cc]urrency/],
+        info: {
+            icon: 'euro',
+            type: EntityFieldType.string,
+            default: 'Euro'
         },
     },
     {
@@ -151,9 +160,9 @@ export const fieldDefaults: FieldDefaults[] = [
         info: {
             icon: 'map',
             type: EntityFieldType.string,
-            mask: {
-                mask: [/\d/, /\d/, /\d/, /\d/, /\d/]
-            }
+            // mask: {
+            //     mask: [/\d/, /\d/, /\d/, /\d/, /\d/]
+            // }
         }
     },
     {

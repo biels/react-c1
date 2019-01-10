@@ -58,11 +58,11 @@ class EntityField extends Component<EntityFieldProps> {
             }
 
             let validate = (value, allValues) => {
-                if (validation.custom) return validation.custom(value, allValues);
                 if (value == null) {
                     if (field.required) return 'required';
-                    return undefined;
+                    return null;
                 }
+                if (validation.custom) return validation.custom(value, allValues);
                 if (validation.maxLength && value.toString().length > validation.maxLength) return 'length exceeded';
                 if (validation.minLength && value.toString().length < validation.maxLength) return 'length not fulfilled';
                 if (validation.max && value > validation.max) return 'max not fulfilled';
@@ -72,12 +72,12 @@ class EntityField extends Component<EntityFieldProps> {
                 return undefined;
             };
             return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined} parse={parse}
-                              format={format} validate={validate}>
+                              format={format} validate={validate} allowNull={true}>
                 {({input: formInput, meta}) => {
-                    let showInvalid = (meta.invalid && !this.props.creating) || ((meta.touched || meta.submitError || meta.dirty) && meta.invalid);
+                    let showInvalid = (meta.invalid && !this.props.creating) || (meta.invalid && (meta.touched || meta.submitError || meta.dirty));
                     let intent = (meta.error && showInvalid) ? Intent.DANGER : null;
                     const renderFormGroup = (props, input) => {
-                        let helperText = [field.help, !mask ? undefined : '(Mask)'].join(' ');
+                        let helperText = [field.help, !mask ? undefined : '(Mask)', meta.error].join(' ');
                         let label = [field.label || field.name].join(' ');
                         return <FormGroup label={label} labelInfo={!field.required ? '(opcional)' : undefined}
                                           helperText={helperText} intent={intent}>
@@ -86,7 +86,7 @@ class EntityField extends Component<EntityFieldProps> {
                     }
                     let label = field.label || field.name;
                     if (field.type === EntityFieldType.boolean) {
-                        return <Switch {...formInput} checked={formInput.value} label={label}/>
+                        return renderFormGroup(formInput, <Switch {...formInput} checked={formInput.value} label={label}/>)
                     }
                     if (field.type === EntityFieldType.textarea) {
                         return renderFormGroup(formInput, <TextArea {...formInput} placeholder={label} fill={true}/>)
