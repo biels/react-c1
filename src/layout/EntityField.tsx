@@ -12,6 +12,7 @@ import {getDisplayName} from "../page-templates/utils/getDisplayName";
 import moment from 'moment';
 import {FieldEnumValues} from "react-entity-plane/src/types/fieldsInfo";
 import {fieldSubscriptionItems} from "final-form";
+import {isNullOrUndefined} from "util";
 
 
 export interface EntityFieldProps {
@@ -48,19 +49,22 @@ class EntityField extends Component<EntityFieldProps> {
             if (field.type === EntityFieldType.number) {
                 parse = v => v && parseFloat(v)
                 format = v => {
-                    if(v == null) return null;
+                    if (v == null) return null;
                     return (v.toFixed(validation.decimals || 0) || '').toString();
                 }
             }
 
             let validate = (value, allValues) => {
+                if (validation.custom) return validation.custom(value, allValues);
+                if (value == null) {
+                    if (field.required) return 'required';
+                    return undefined;
+                }
                 if (validation.maxLength && value.toString().length > validation.maxLength) return 'length exceeded';
                 if (validation.minLength && value.toString().length < validation.maxLength) return 'length not fulfilled';
                 if (validation.max && value > validation.max) return 'max not fulfilled';
                 if (validation.min && value < validation.min) return 'min not fulfilled';
                 if (validation.match && validation.match.test(value.toString())) return 'match not fulfilled';
-                if (validation.custom) return validation.custom(value, allValues);
-                if (value == null && field.required) return 'required';
                 return undefined;
             };
             return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined} parse={parse}
