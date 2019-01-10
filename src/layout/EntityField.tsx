@@ -47,10 +47,15 @@ class EntityField extends Component<EntityFieldProps> {
         if (this.props.inForm) {
             let parse, format;
             if (field.type === EntityFieldType.number) {
-                parse = v => v && parseFloat(v)
+                parse = v => {
+                    if(!_.isFinite(v)) return v;
+                    return parseFloat(v);
+                }
                 format = v => {
                     if (v == null) return null;
-                    return (v.toFixed(validation.decimals || 0) || '').toString();
+                    let float = parseFloat(v);
+                    if(!_.isFinite(float)) return v;
+                    return (float.toFixed(validation.decimals || 0) || '').toString();
                 }
             }
 
@@ -70,7 +75,7 @@ class EntityField extends Component<EntityFieldProps> {
             return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined} parse={parse}
                               format={format} validate={validate}>
                 {({input: formInput, meta}) => {
-                    let showInvalid = (meta.invalid && !this.props.creating) || ((meta.touched || meta.submitError) && meta.invalid);
+                    let showInvalid = (meta.invalid && !this.props.creating) || ((meta.touched || meta.submitError || meta.dirty) && meta.invalid);
                     let intent = (meta.error && showInvalid) ? Intent.DANGER : null;
                     const renderFormGroup = (props, input) => {
                         let helperText = [field.help, !mask ? undefined : '(Mask)'].join(' ');
