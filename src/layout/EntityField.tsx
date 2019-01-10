@@ -4,15 +4,13 @@ import {Button, FormGroup, InputGroup, Intent, MenuItem, Switch, TextArea} from 
 import {Select} from "@blueprintjs/select";
 import {DateInput} from "@blueprintjs/datetime";
 
-import {Entity, EntityFieldInfo, EntityFieldType, EntityRenderProps, LoadingQuery} from 'react-entity-plane';
+import {Entity, EntityFieldInfo, EntityRenderProps, LoadingQuery} from 'react-entity-plane';
 import MaskedInput from 'react-text-mask';
 import * as _ from "lodash";
 import {fieldDefaults} from "../defaults/fieldDefaults";
 import {getDisplayName} from "../page-templates/utils/getDisplayName";
 import moment from 'moment';
-import {FieldEnumValues} from "react-entity-plane/src/types/fieldsInfo";
-import {fieldSubscriptionItems} from "final-form";
-import {isNullOrUndefined} from "util";
+import {EntityFieldType, FieldEnumValues} from "react-entity-plane/src/types/fieldsInfo";
 
 
 export interface EntityFieldProps {
@@ -53,9 +51,9 @@ class EntityField extends Component<EntityFieldProps> {
                 }
                 format = v => {
                     if (v == null) return null;
+                    if(!_.isFinite(v)) return v;
                     let float = parseFloat(v);
-                    if(!_.isFinite(float)) return v;
-                    return (float.toFixed(validation.decimals || 0) || '').toString();
+                    return v;
                 }
             }
 
@@ -70,6 +68,7 @@ class EntityField extends Component<EntityFieldProps> {
                 if (validation.max && value > validation.max) return 'max not fulfilled';
                 if (validation.min && value < validation.min) return 'min not fulfilled';
                 if (validation.match && validation.match.test(value.toString())) return 'match not fulfilled';
+                if (field.type === EntityFieldType.number && !_.isFinite(parseFloat(value))) return 'number invalid';
                 return undefined;
             };
             return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined} parse={parse}
