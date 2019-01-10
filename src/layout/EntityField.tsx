@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Field as FormField} from "react-final-form";
-import {Button, FormGroup, InputGroup, MenuItem, Switch, TextArea} from "@blueprintjs/core";
+import {Button, FormGroup, InputGroup, Intent, MenuItem, Switch, TextArea} from "@blueprintjs/core";
 import {Select} from "@blueprintjs/select";
 import {DateInput} from "@blueprintjs/datetime";
 
@@ -10,6 +10,8 @@ import * as _ from "lodash";
 import {fieldDefaults} from "../defaults/fieldDefaults";
 import {getDisplayName} from "../page-templates/utils/getDisplayName";
 import moment from 'moment';
+import {FieldEnumValues} from "react-entity-plane/src/types/fieldsInfo";
+import {fieldSubscriptionItems} from "final-form";
 
 
 export interface EntityFieldProps {
@@ -48,11 +50,17 @@ class EntityField extends Component<EntityFieldProps> {
                 format = v => (v || '').toString()
             }
 
+            let validate = (value, allValues) => {
+                if(value == null && field.required) return 'required';
+                return undefined;
+            };
             return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined} parse={parse}
-                              format={format}>
+                                                                                 format={format} validate={validate}>
                 {({input: formInput, meta}) => {
                     const renderFormGroup = (props, input) => {
-                        return <FormGroup label={field.label || field.name} helperText={!mask ? null : 'Mask'}>
+                        let helperText = [field.help, !mask ? undefined : '(Mask)'].join(' ');
+                        let label = [field.label || field.name].join(' ');
+                        return <FormGroup label={label} labelInfo={!field.required ? '(opcional)' : undefined} helperText={helperText} intent={(meta.error && meta.submitFailed) ? Intent.DANGER : null }>
                             {input}
                         </FormGroup>;
                     }
@@ -77,7 +85,12 @@ class EntityField extends Component<EntityFieldProps> {
                     }
                     if (field.type === EntityFieldType.enum) {
                         const values = field.values || [];
-                        const selectedValue = values.find((v) => v.value === formInput.value)
+                        let emptyItem: FieldEnumValues = {
+                            icon: field.icon,
+                            display: '---',
+                            value: null
+                        };
+                        const selectedValue = values.find((v) => v.value === formInput.value) || emptyItem
                         const select =  <Select items={values}
                                        itemRenderer={(item, info) => <MenuItem onClick={info.handleClick} text={item.display || item.value} icon={item.icon} intent={item.intent}/>}
                                        onItemSelect={(item, event) => formInput.onChange(item.value)}>
