@@ -134,6 +134,7 @@ class EntityField extends Component<EntityFieldProps> {
                         };
                         const selectedValue = values.find((v) => v.value === formInput.value) || emptyItem
                         const select = <Select items={values}
+                                               filterable={false}
                                                itemRenderer={(item, info) => <MenuItem onClick={info.handleClick}
                                                                                        text={item.display || item.value}
                                                                                        icon={item.icon}
@@ -177,7 +178,7 @@ class EntityField extends Component<EntityFieldProps> {
                                         formInput.onChange({connect: {id: item.id}});
                                     }}
                                     activeItem={selectedItem}
-                                    filterable={true}
+                                    filterable={false}
                                     disabled={this.props.disabled}
                                 >
                                     <Button text={getDisplayName(selectedItem)} rightIcon="double-caret-vertical"
