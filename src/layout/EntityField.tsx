@@ -18,6 +18,7 @@ export interface EntityFieldProps {
     specificInfo: Partial<EntityFieldInfo>
     inForm: boolean
     creating: boolean
+    disabled: boolean
 }
 
 class EntityField extends Component<EntityFieldProps> {
@@ -53,7 +54,7 @@ class EntityField extends Component<EntityFieldProps> {
                     if (v == null) return null;
                     if(!_.isFinite(v)) return v;
                     let float = parseFloat(v);
-                    return v;
+                    return v.toString();
                 }
             }
 
@@ -77,10 +78,11 @@ class EntityField extends Component<EntityFieldProps> {
                     let showInvalid = (meta.invalid && !this.props.creating) || (meta.invalid && (meta.touched || meta.submitError || meta.dirty));
                     let intent = (meta.error && showInvalid) ? Intent.DANGER : null;
                     const renderFormGroup = (props, input) => {
-                        let helperText = [field.help, !mask ? undefined : '(Mask)', meta.error].join(' ');
+                        let maskIndicator = !mask ? undefined : '(Mask)';
+                        let helperText = [field.help, meta.error].join(' ');
                         let label = [field.label || field.name].join(' ');
                         return <FormGroup label={label} labelInfo={!field.required ? '(opcional)' : undefined}
-                                          helperText={helperText} intent={intent}>
+                                          helperText={helperText} intent={intent} disabled={this.props.disabled && false}>
                             {input}
                         </FormGroup>;
                     }
@@ -155,9 +157,11 @@ class EntityField extends Component<EntityFieldProps> {
                                         formInput.onChange({connect: {id: item.id}});
                                     }}
                                     activeItem={selectedItem}
-                                    filterable={true}>
+                                    filterable={true}
+                                    disabled={this.props.disabled}
+                                >
                                     <Button text={getDisplayName(selectedItem)} rightIcon="double-caret-vertical"
-                                            icon={entity.entityInfo.display.icon}/>
+                                            icon={entity.entityInfo.display.icon} disabled={this.props.disabled}/>
                                 </Select>;
                                 return renderFormGroup(formInput, select)
                             }}
@@ -172,6 +176,7 @@ class EntityField extends Component<EntityFieldProps> {
                                                leftIcon={field.icon as any} large={false}
                                                autoComplete={'offf'}
                                                intent={intent}
+                                               disabled={this.props.disabled}
                             />;
                         };
 
@@ -199,7 +204,7 @@ class EntityField extends Component<EntityFieldProps> {
             </FormField>
         }
         return <React.Fragment>
-            Field
+            Field({this.props.specificInfo.name})
         </React.Fragment>
     }
 }

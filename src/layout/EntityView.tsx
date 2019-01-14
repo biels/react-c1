@@ -91,27 +91,43 @@ class EntityView extends Component<EntityViewProps> {
                 return inside;
             }
             const renderExtraFields = (inForm) => {
+                // TODO Filter associate fields appropriately by default
                 const pendingFields = entity.entityInfo.fields.filter(f => !rendered.includes(f.name))
-                    .filter(f => !_.entries(this.props.associate)
-                        .filter(e => e[1] != null)
-                        .map(e => e[0])
-                        .includes(f.name)
-                    )
+                    // .filter(f => !_.entries(this.props.associate)
+                    //     .filter(e => e[1] != null)
+                    //     .map(e => e[0])
+                    //     .includes(f.name)
+                    // )
                 return pendingFields.map(f => field(inForm, false)(f.name))
             }
             const rendered = [];
-            const field = (inForm: boolean, register: boolean = true) => (name: string, props?: AutoFieldProps) => {
-                if (props == null) props = {name}
-                if (register) rendered.push(props.name);
-                return <EntityField key={name || props.name} entity={entity} inForm={inForm} specificInfo={props}
-                                    creating={creating}/>
-            }
+
 
             let creating = this.props.creating;
             let editing = this.props.editing;
             if (creating) editing = false;
             if (editing) creating = false;
             const mode: CRUDMode = creating ? 'creating' : (editing ? 'editing' : 'viewing')
+
+            // TODO Initial values should already contain associations, and if associations are enforced the fields
+            // should be ommitted and if present they should be rendered as disabled
+            let oldAssociate: EntityRenderProps = this.props.associate as EntityRenderProps;
+            let associate: { [entityName: string]: EntityRenderProps };
+            // console.log(`associate`, this.props.associate, associate);
+            if (oldAssociate != null && _.isFunction(oldAssociate.selectId)) {
+                associate = {[oldAssociate.entityInfo.name]: oldAssociate}
+            } else {
+                associate = this.props.associate as { [entityName: string]: EntityRenderProps }
+            }
+
+            const field = (inForm: boolean, register: boolean = true) => (name: string, props?: AutoFieldProps) => {
+                if (props == null) props = {name}
+                if (register) rendered.push(props.name);
+                let disabled = !!(_.get(associate, name))
+
+                return <EntityField key={name || props.name} entity={entity} inForm={inForm} specificInfo={props}
+                                    creating={creating} disabled={disabled}/>
+            };
 
             //if (!entity.single) editing = entity.editingIndex == this.props.index;
             if (editing || creating) {
@@ -142,28 +158,19 @@ class EntityView extends Component<EntityViewProps> {
                         ...initialValues, ...associationValues
                     }
                 }
-                // TODO Initial values should already contain associations, and if associations are enforced the fields
-                // should be ommitted and if present they should be rendered as disabled
+
+                let associationValues = relationFieldNames.filter(rf => _.keys(associate).includes(rf))
+                    .map(rf => {
+                        const associateElement = associate[rf];
+                        console.log('associateElement', associateElement);
+                        if (associateElement == null) return null;
+                        let selectedItem = associateElement.selectedItem;
+                        if (selectedItem == null) return null;
+                        return {[rf]: {connect: {id: selectedItem.id}}}
+                    }).reduce((previousValue, currentValue, i) => {
+                        return Object.assign(previousValue, currentValue)
+                    }, {});
                 if (creating) {
-                    let oldAssociate: EntityRenderProps = this.props.associate as EntityRenderProps;
-                    let associate: {[entityName: string]: EntityRenderProps};
-                    // console.log(`associate`, this.props.associate, associate);
-                    if(oldAssociate != null && _.isFunction(oldAssociate.selectId)){
-                        associate = {[oldAssociate.entityInfo.name]: oldAssociate}
-                    }else{
-                        associate = this.props.associate as {[entityName: string]: EntityRenderProps}
-                    }
-                    let associationValues = relationFieldNames.filter(rf => _.keys(associate).includes(rf))
-                        .map(rf => {
-                            const associateElement = associate[rf];
-                            console.log('associateElement', associateElement);
-                            if (associateElement == null) return null;
-                            let selectedItem = associateElement.selectedItem;
-                            if (selectedItem == null) return null;
-                            return {[rf]: {connect: {id: selectedItem.id}}}
-                        }).reduce((previousValue, currentValue, i) => {
-                            return Object.assign(previousValue, currentValue)
-                        }, {});
                     initialValues = entity.entityInfo.fields
                         .map(f => (f.default != null ? {[f.name]: f.default} : {}))
                         .reduce((o1, o2) => Object.assign(o1, o2), {})
@@ -178,6 +185,7 @@ class EntityView extends Component<EntityViewProps> {
                     {(form) => {
                         if (this.props.onSubmitReady) this.props.onSubmitReady(form.handleSubmit)
                         return <form onSubmit={form.handleSubmit}>
+                            {(window as any).d && JSON.stringify(Object.keys(associate))}
                             {(editing && !creating) &&
                             <FormAutoSave debounce={1200} form={form} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
