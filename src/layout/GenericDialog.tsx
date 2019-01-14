@@ -8,6 +8,7 @@ export interface GenericDialogProps {
         type?: 'cancel' | 'submit'
         intent?: Intent
         icon?: IconName
+        disabled?: () => boolean
         onClick?: (event) => void
         text?: any
     }[]
@@ -28,7 +29,7 @@ class GenericDialog extends Component<GenericDialogProps> {
 
                     <div className={Classes.DIALOG_FOOTER_ACTIONS}>
                             {/*<Button onClick={this.props.onClose}>Cancel</Button>*/}
-                        {this.props.buttons.map(b => <Button key={b.text.toString()} onClick={b.onClick} intent={b.intent} icon={b.icon}>{b.text}</Button>)}
+                        {this.props.buttons.map(b => <Button key={b.text.toString()} disabled={b.disabled && b.disabled()} onClick={b.onClick} intent={b.intent} icon={b.icon}>{b.text}</Button>)}
                     </div>
             </div>}
         </Dialog>

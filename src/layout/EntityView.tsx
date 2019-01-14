@@ -8,7 +8,17 @@ import FormAutoSave from "./FormAutoSave";
 import {Entity, EntityContextProvider, EntityFieldInfo, EntityProps, EntityRenderProps} from 'react-entity-plane';
 import {EntityFieldType} from "react-entity-plane/src/types/fieldsInfo";
 import {renderToJson} from "enzyme-to-json";
+import createDecorator from 'final-form-focus'
 
+const focusOnErrors = createDecorator(
+    // () => {
+    //
+    // },
+    //  (inputs: { name: string, focus: () => void }[]) => {
+    //     console.log(`Inputs`, inputs);
+    //     return _.first(inputs.filter(i => i.name != null))
+    // }
+)
 
 interface FormWrapperRenderProps {
     entity: EntityRenderProps
@@ -35,7 +45,7 @@ export interface EntityViewProps {
     children?: (entity: EntityRenderProps, mode: CRUDMode, field: (name: string, props?: AutoFieldProps) => any, form?: FormRenderProps) => any
     creating?: boolean;
     editing?: boolean;
-    onSubmitReady?: (submit: Function) => any
+    onFormReady?: (submit: FormRenderProps) => any
     onSubmit?: (entity: EntityRenderProps, values: object, mode: 'editing' | 'creating', form: FormApi, callback) => any
     afterSubmit?: () => any
     transform?: (values) => object
@@ -93,11 +103,11 @@ class EntityView extends Component<EntityViewProps> {
             const renderExtraFields = (inForm) => {
                 // TODO Filter associate fields appropriately by default
                 const pendingFields = entity.entityInfo.fields.filter(f => !rendered.includes(f.name))
-                    // .filter(f => !_.entries(this.props.associate)
-                    //     .filter(e => e[1] != null)
-                    //     .map(e => e[0])
-                    //     .includes(f.name)
-                    // )
+                // .filter(f => !_.entries(this.props.associate)
+                //     .filter(e => e[1] != null)
+                //     .map(e => e[0])
+                //     .includes(f.name)
+                // )
                 return pendingFields.map(f => field(inForm, false)(f.name))
             }
             const rendered = [];
@@ -182,9 +192,10 @@ class EntityView extends Component<EntityViewProps> {
                 }
                 return <Form onSubmit={handleSubmit}
                              initialValues={initialValues}
+                             decorators={[focusOnErrors]}
                 >
                     {(form) => {
-                        if (this.props.onSubmitReady) this.props.onSubmitReady(form.handleSubmit)
+                        if (this.props.onFormReady) this.props.onFormReady(form)
                         return <form onSubmit={form.handleSubmit}>
                             {(window as any).d && 'Associating: ' + JSON.stringify(Object.keys(associationValues))}
                             {(window as any).d && ' Values: ' + JSON.stringify(form.values)}

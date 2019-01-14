@@ -19,6 +19,7 @@ import {getDisplayName} from "../page-templates/utils/getDisplayName";
 import {ICellRendererReactComp} from "ag-grid-react/lib/interfaces";
 import {EntityInfo} from 'react-entity-plane/src/types/entities';
 import {parseDate, formatDate} from "../page-templates/utils/dateUtils";
+import {FormRenderProps} from "react-final-form";
 
 // const OldContainer = styled.div`
 //     height: 100%;
@@ -386,8 +387,8 @@ class EntityGrid extends Component<EntityGridProps> {
                             const handleCreationDialogClose = () => {
                                 this.setState({creationDialogOpen: false})
                             }
-                            let submit;
-                            const handleSubmitReady = (s) => submit = s;
+                            let form: FormRenderProps;
+                            const handleFormReady = (f) => form = f;
                             creationDialog = <GenericDialog
                                 title={`${display.gender ? 'Nou' : 'Nova'} ${display.singular.toLowerCase()}`}
                                 isOpen={this.state.creationDialogOpen}
@@ -399,14 +400,17 @@ class EntityGrid extends Component<EntityGridProps> {
                                     }, {
                                         text: 'Crear ' + display.singular.toLowerCase(),
                                         intent: Intent.PRIMARY,
+                                        disabled: () => {
+                                            return form ? form.invalid : false;
+                                        },
                                         onClick: () => {
-                                            if (submit) submit();
+                                            if (form) form.handleSubmit();
                                         }
                                     },
                                 ]}
                             >
                                 <CreationComponent entity={entity} creating afterSubmit={handleCreationDialogClose}
-                                                   onSubmitReady={handleSubmitReady}
+                                                   onSubmitReady={handleFormReady}
                                                    associate={this.props.associate}
                                                    transform={(v) => {
                                                        // TODO Convert to object. If raw entity, use fallback method

@@ -66,6 +66,7 @@
     "ag-grid-react": "^19.1.2",
     "deep-object-diff": "^1.1.0",
     "final-form": "^4.11.0",
+    "final-form-focus": "^1.1.0",
     "moment": "^2.23.0",
     "object-diff": "^0.0.4",
     "react-entity-plane": "^1.0.6",

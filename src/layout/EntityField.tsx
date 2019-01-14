@@ -108,10 +108,10 @@ class EntityField extends Component<EntityFieldProps> {
                     }
                     let label = field.label || field.name;
                     if (field.type === EntityFieldType.boolean) {
-                        return renderFormGroup(formInput, <Switch {...formInput} checked={formInput.value} label={label}/>)
+                        return renderFormGroup(formInput, <Switch {...formInput} name={field.name} checked={formInput.value} label={label}/>)
                     }
                     if (field.type === EntityFieldType.textarea) {
-                        return renderFormGroup(formInput, <TextArea {...formInput} placeholder={label} fill={true}/>)
+                        return renderFormGroup(formInput, <TextArea name={field.name} {...formInput} placeholder={label} fill={true}/>)
                     }
                     if (field.type === EntityFieldType.date) {
                         let format = 'DD/MM/YYYY';
@@ -120,6 +120,7 @@ class EntityField extends Component<EntityFieldProps> {
                         return renderFormGroup(formInput, <DateInput
                             parseDate={parseDate}
                             formatDate={formatDate}
+                            name={field.name}
                             {...formInput}
                             value={formInput.value ? new Date(formInput.value) : null}
                             placeholder={label}
@@ -181,7 +182,7 @@ class EntityField extends Component<EntityFieldProps> {
                                     filterable={false}
                                     disabled={this.props.disabled}
                                 >
-                                    <Button text={getDisplayName(selectedItem)} rightIcon="double-caret-vertical"
+                                    <Button name={field.name} text={getDisplayName(selectedItem)} rightIcon="double-caret-vertical"
                                             icon={entity.entityInfo.display.icon} disabled={this.props.disabled}/>
                                 </Select>;
                                 return renderFormGroup(formInput, select)
@@ -193,6 +194,7 @@ class EntityField extends Component<EntityFieldProps> {
                         // All other types
                         const renderInputGroup = (ref, props) => {
                             return <InputGroup inputRef={ref as any} {...props}
+                                               name={field.name}
                                                placeholder={label}
                                                leftIcon={field.icon as any} large={false}
                                                autoComplete={'offf'}
@@ -204,6 +206,7 @@ class EntityField extends Component<EntityFieldProps> {
 
                         if (hasMask) {
                             return <MaskedInput
+
                                 mask={mask.mask}
                                 guide={mask.guide}
                                 placeholderChar={mask.placeholderChar}
