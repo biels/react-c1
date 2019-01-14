@@ -159,7 +159,8 @@ class EntityView extends Component<EntityViewProps> {
                     }
                 }
 
-                let associationValues = relationFieldNames.filter(rf => _.keys(associate).includes(rf))
+                let associationValues = relationFieldNames
+                    .filter(rf => _.keys(associate).includes(rf) && associate[rf] != null)
                     .map(rf => {
                         const associateElement = associate[rf];
                         console.log('associateElement', associateElement);
@@ -185,7 +186,8 @@ class EntityView extends Component<EntityViewProps> {
                     {(form) => {
                         if (this.props.onSubmitReady) this.props.onSubmitReady(form.handleSubmit)
                         return <form onSubmit={form.handleSubmit}>
-                            {(window as any).d && JSON.stringify(Object.keys(associate))}
+                            {(window as any).d && 'Associating: ' + JSON.stringify(Object.keys(associationValues))}
+                            {(window as any).d && ' Values: ' + JSON.stringify(form.values)}
                             {(editing && !creating) &&
                             <FormAutoSave debounce={1200} form={form} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}

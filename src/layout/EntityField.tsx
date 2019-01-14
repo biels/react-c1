@@ -11,6 +11,7 @@ import {fieldDefaults} from "../defaults/fieldDefaults";
 import {getDisplayName} from "../page-templates/utils/getDisplayName";
 import moment from 'moment';
 import {EntityFieldType, FieldEnumValues} from "react-entity-plane/src/types/fieldsInfo";
+import {createNumberMask} from "text-mask-addons/dist/textMaskAddons";
 
 
 export interface EntityFieldProps {
@@ -39,22 +40,41 @@ class EntityField extends Component<EntityFieldProps> {
         }).map(md => md.info);
         const field: EntityFieldInfo = _.defaultsDeep({}, specificInfo, baseInfo, ...matchingDefaults);
         const validation = (field || {} as any).validation || {}
-        const mask = (field || {} as any).mask
-        const hasMask = mask != null && mask.mask != null;
+        let mask = (field || {} as any).mask
+        let hasMask = mask != null && mask.mask != null;
         const isBoolean = field.type === EntityFieldType.boolean;
         if (this.props.creating && field.create === false) return null;
         if (this.props.inForm) {
             let parse, format;
             if (field.type === EntityFieldType.number) {
+                hasMask = true;
+                // TODO Forcefully placed mask, place in defaults to allow custom masks
+                let mask1 = createNumberMask({
+                    prefix: '',
+                    suffix: '', // This will put the dollar sign at the end, with a space.
+                    includeThousandsSeparator: false,
+                    allowDecimal: true,
+                });
+                mask = {
+                    mask: mask1
+                }
                 parse = v => {
-                    if(!_.isFinite(v)) return v;
+                    // return 50;
+                    if (v == null) return null;
+                    console.log(`Parsing`, JSON.stringify(v), JSON.stringify(parseFloat(v)), JSON.stringify(parseInt(v)));
+                    // if(!_.isFinite(v)) return v;
+
                     return parseFloat(v);
                 }
                 format = v => {
+                    return v;
+                    console.log(`Formatting`, JSON.stringify(v));
                     if (v == null) return null;
-                    if(!_.isFinite(v)) return v;
-                    let float = parseFloat(v);
-                    return v.toString();
+                    let number = parseFloat(v);
+                    if(!_.isNumber(number)) return null;
+                    if(!_.isFinite(number)) return null;
+                    // return v.toString();
+                    return number.toFixed(2)
                 }
             }
 
@@ -73,7 +93,7 @@ class EntityField extends Component<EntityFieldProps> {
                 return undefined;
             };
             return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined} parse={parse}
-                              format={format} validate={validate} allowNull={true}>
+                              format={format} validate={validate} allowNull={true} formatOnBlur={true} >
                 {({input: formInput, meta}) => {
                     let showInvalid = (meta.invalid && !this.props.creating) || (meta.invalid && (meta.touched || meta.submitError || meta.dirty));
                     let intent = (meta.error && showInvalid) ? Intent.DANGER : null;

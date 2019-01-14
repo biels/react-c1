@@ -375,6 +375,7 @@ class EntityGrid extends Component<EntityGridProps> {
 
                         let creationDialog;
                         if (CreationComponent != null && isCreateImplemented) {
+                            // TODO Remove duplicated association logic
                             let oldAssociate: EntityRenderProps = this.props.associate as EntityRenderProps;
                             let associate: { [entityName: string]: EntityRenderProps };
                             if (oldAssociate != null && _.isFunction(oldAssociate.selectId)) {
@@ -412,13 +413,13 @@ class EntityGrid extends Component<EntityGridProps> {
                                                        if (associate == null) return v;
                                                        return {
                                                            ...v,
-                                                           ..._.mapValues(associate, (a) => {
-                                                               if (a == null) return undefined;
-                                                               if (a.selectedItem == null) {
-                                                                   console.log(`Could not associate with a ${a.entityInfo.name}. No item selected`);
-                                                               }
-                                                               return {connect: {id: a.selectedItem.id}}
-                                                           })
+                                                           // ..._.mapValues(associate, (a) => {
+                                                           //     if (a == null) return undefined;
+                                                           //     if (a.selectedItem == null) {
+                                                           //         console.log(`Could not associate with a ${a.entityInfo.name}. No item selected`);
+                                                           //     }
+                                                           //     return {connect: {id: a.selectedItem.id}}
+                                                           // })
                                                        }
                                                        // if(associate.create != null){
                                                        //     // Legacy
