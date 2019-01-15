@@ -9,7 +9,9 @@ import {Entity, EntityContextProvider, EntityFieldInfo, EntityProps, EntityRende
 import {EntityFieldType} from "react-entity-plane/src/types/fieldsInfo";
 import {renderToJson} from "enzyme-to-json";
 import createDecorator from 'final-form-focus'
+import {D} from "../page-templates/utils/debug";
 
+const d = D('EntityView')
 const focusOnErrors = createDecorator(
     // () => {
     //
@@ -188,7 +190,7 @@ class EntityView extends Component<EntityViewProps> {
                     initialValues = {
                         ...initialValues, ...associationValues
                     }
-                    console.log(`Creating associationValues`, associationValues);
+                    console.log(`Creating associationValues`, associationValues,initialValues);
                 }
                 return <Form onSubmit={handleSubmit}
                              initialValues={initialValues}
@@ -197,8 +199,8 @@ class EntityView extends Component<EntityViewProps> {
                     {(form) => {
                         if (this.props.onFormReady) this.props.onFormReady(form)
                         return <form onSubmit={form.handleSubmit}>
-                            {(window as any).d && 'Associating: ' + JSON.stringify(Object.keys(associationValues))}
-                            {(window as any).d && ' Values: ' + JSON.stringify(form.values)}
+                            {d() && 'Associating: ' + JSON.stringify(Object.keys(associationValues))}
+                            {d() && ' Values: ' + JSON.stringify(form.values)}
                             {(editing && !creating) &&
                             <FormAutoSave debounce={1200} form={form} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}

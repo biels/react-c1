@@ -410,7 +410,7 @@ class EntityGrid extends Component<EntityGridProps> {
                                 ]}
                             >
                                 <CreationComponent entity={entity} creating afterSubmit={handleCreationDialogClose}
-                                                   onSubmitReady={handleFormReady}
+                                                   onFormReady={handleFormReady}
                                                    associate={this.props.associate}
                                                    transform={(v) => {
                                                        // TODO Convert to object. If raw entity, use fallback method
