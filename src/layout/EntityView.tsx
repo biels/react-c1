@@ -146,7 +146,7 @@ class EntityView extends Component<EntityViewProps> {
             if (editing || creating) {
                 const handleSubmit: FormProps['onSubmit'] = (values, form, callback) => {
                     // console.log(`Mode`, mode);
-                    this.optimisticValues = {...values}
+                    this.optimisticValues = {...form.getState().values}
                     this.onSubmit(entity, values, mode as any, form, callback);
                     this.props.afterSubmit()
                 };
@@ -200,7 +200,7 @@ class EntityView extends Component<EntityViewProps> {
                 >
                     {(form) => {
                         if (this.props.onFormReady) this.props.onFormReady(form)
-                        console.log(`Rendered `, initialValues);
+                        console.log(`Rendered `, initialValues, this.optimisticValues);
                         return <form onSubmit={form.handleSubmit}>
                             {d() && 'Associating: ' + JSON.stringify(Object.keys(associationValues))}
                             {d() && ' Values: ' + JSON.stringify(form.values)}

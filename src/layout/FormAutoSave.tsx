@@ -6,6 +6,7 @@ import * as _ from "lodash";
 import Timer = NodeJS.Timer;
 import {FormRenderProps} from "react-final-form";
 import {dir} from "async";
+import {FormApi} from "final-form";
 
 const Container = styled.div`
     display: grid;
@@ -24,7 +25,7 @@ export interface FormAutoSaveState {
 export interface FormAutoSaveProps {
     debounce: number
     form: FormRenderProps
-    save: (difference) => any
+    save: (difference, form: FormApi) => any
 }
 
 class FormAutoSave extends Component<FormAutoSaveProps, FormAutoSaveState> {
@@ -67,7 +68,7 @@ class FormAutoSave extends Component<FormAutoSaveProps, FormAutoSaveState> {
         if (Object.keys(dirtyDiff).length > 0) {
             // values have changed
             this.setState({submitting: true, values})
-            this.promise = this.props.save(dirtyDiff)
+            this.promise = this.props.save(dirtyDiff, form.form)
             await this.promise;
             //await handleSubmit()
             this.promise = null;
