@@ -61,6 +61,7 @@ class EntityField extends Component<EntityFieldProps> {
                 parse = v => {
                     // return 50;
                     if (v == null) return null;
+                    if (v === '') return null;
                     console.log(`Parsing`, JSON.stringify(v), JSON.stringify(parseFloat(v)), JSON.stringify(parseInt(v)));
                     // if(!_.isFinite(v)) return v;
 

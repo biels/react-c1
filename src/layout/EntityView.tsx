@@ -63,6 +63,7 @@ class EntityView extends Component<EntityViewProps> {
         afterSubmit: () => null,
         associate: {}
     }
+    optimisticValues = null
     onSubmit = (entity, values, mode, form, callback) => {
         values = this.props.transform(values)
         if (mode === 'editing') {
@@ -145,6 +146,7 @@ class EntityView extends Component<EntityViewProps> {
             if (editing || creating) {
                 const handleSubmit: FormProps['onSubmit'] = (values, form, callback) => {
                     // console.log(`Mode`, mode);
+                    this.optimisticValues = {...values}
                     this.onSubmit(entity, values, mode as any, form, callback);
                     this.props.afterSubmit()
                 };
@@ -190,18 +192,19 @@ class EntityView extends Component<EntityViewProps> {
                     initialValues = {
                         ...initialValues, ...associationValues
                     }
-                    console.log(`Creating associationValues`, associationValues,initialValues);
+                    console.log(`Creating associationValues`, associationValues, initialValues);
                 }
                 return <Form onSubmit={handleSubmit}
-                             initialValues={initialValues}
+                             initialValues={this.optimisticValues == null ? initialValues : this.optimisticValues}
                              decorators={[focusOnErrors]}
                 >
                     {(form) => {
                         if (this.props.onFormReady) this.props.onFormReady(form)
+                        console.log(`Rendered `, initialValues);
                         return <form onSubmit={form.handleSubmit}>
                             {d() && 'Associating: ' + JSON.stringify(Object.keys(associationValues))}
                             {d() && ' Values: ' + JSON.stringify(form.values)}
-                            {(editing && !creating) &&
+                            {(editing && !creating && form.valid) &&
                             <FormAutoSave debounce={1200} form={form} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
                             {/*<button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={false}>Hidden*/}
