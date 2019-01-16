@@ -12,7 +12,8 @@ import {getDisplayName} from "../page-templates/utils/getDisplayName";
 import moment from 'moment';
 import {EntityFieldType, FieldEnumValues} from "react-entity-plane/src/types/fieldsInfo";
 import {createNumberMask} from "text-mask-addons/dist/textMaskAddons";
-
+import {D} from "../page-templates/utils/debug";
+const d = D('Entity Field')
 
 export interface EntityFieldProps {
     entity: EntityRenderProps
@@ -29,7 +30,7 @@ class EntityField extends Component<EntityFieldProps> {
         const baseInfo = this.props.entity.entityInfo.fields.find(fi => fi.name === name)
         let entityInfo = this.props.entity.entityInfo;
         if (baseInfo == null) {
-            console.log(`Field ${name} is not defined on ${entityInfo.name}`);
+            console.log(`[Entity View] Field ${name} is not defined on ${entityInfo.name}`);
             return null;
         }
         // TODO Generalize
@@ -59,23 +60,16 @@ class EntityField extends Component<EntityFieldProps> {
                     mask: mask1
                 }
                 parse = v => {
-                    // return 50;
                     if (v == null) return null;
                     if (v === '') return null;
-                    console.log(`Parsing`, JSON.stringify(v), JSON.stringify(parseFloat(v)), JSON.stringify(parseInt(v)));
+                    d(`Parsing`, JSON.stringify(v), JSON.stringify(parseFloat(v)), JSON.stringify(parseInt(v)));
                     // if(!_.isFinite(v)) return v;
 
                     return parseFloat(v);
                 }
                 format = v => {
+                    //Currently using mask that already provides good format by default
                     return v;
-                    console.log(`Formatting`, JSON.stringify(v));
-                    if (v == null) return null;
-                    let number = parseFloat(v);
-                    if(!_.isNumber(number)) return null;
-                    if(!_.isFinite(number)) return null;
-                    // return v.toString();
-                    return number.toFixed(2)
                 }
             }
 
@@ -152,7 +146,7 @@ class EntityField extends Component<EntityFieldProps> {
                     if (field.type === EntityFieldType.relation) {
                         const relationInfo = entityInfo.relations[field.name];
                         if (relationInfo == null) {
-                            console.log(`Could not find relation info for ${field.name} in ${entityInfo.name}`);
+                            console.log(`[Entity View] Could not find relation info for ${field.name} in ${entityInfo.name}`);
                             return null;
                         }
                         if (relationInfo.type === 'multi') return null;
