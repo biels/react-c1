@@ -106,7 +106,7 @@ class EntityField extends Component<EntityFieldProps> {
                         return renderFormGroup(formInput, <Switch {...formInput} name={field.name} checked={formInput.value} label={label}/>)
                     }
                     if (field.type === EntityFieldType.textarea) {
-                        return renderFormGroup(formInput, <TextArea name={field.name} {...formInput} placeholder={label} fill={true}/>)
+                        return renderFormGroup(formInput, <TextArea style={{height: 220}} name={field.name} {...formInput} placeholder={label} fill={true}/>)
                     }
                     if (field.type === EntityFieldType.date) {
                         let format = 'DD/MM/YYYY';
