@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Attributes, Component} from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
 
@@ -98,13 +98,17 @@ export interface AttributeDescription {
     unit?
 }
 
+export type AttributesProp = (AttributeGroup | AttributeDescription)[];
+
 export interface AttributeDisplayProps {
-    attributes: (AttributeGroup | AttributeDescription)[]
+    attributes: AttributesProp
 }
+
+const intersperse = (a, e) => a.reduce((p, c, i) => (p[2 * i] = c, p), new Array(2 * a.length - 1).fill(e));
 
 class AttributeDisplay extends Component<AttributeDisplayProps> {
     render() {
-        const intersperse = (a, e) => a.reduce((p, c, i) => (p[2 * i] = c, p), new Array(2 * a.length - 1).fill(e));
+        if (this.props.attributes == null) return null;
         const mapAttribute = (a: AttributeDescription) => <Attribute {...a}/>;
         const mapGroup = (group: AttributeGroup) => {
             console.log(`Mapping group`, group);

@@ -24,6 +24,7 @@ export interface BackArrowProps {
 class BackArrow extends Component<BackArrowProps> {
     public renderContextMenu() {
         // return a single element, or nothing to use default browser behavior
+        // TODO Implement back menu in this way or another
         return (
             <Menu>
                 <NavigationConsumer>
@@ -45,6 +46,8 @@ class BackArrow extends Component<BackArrowProps> {
         return <div>
             <NavigationConsumer>
                 {({back, stack}) => {
+                    // TODO Change icon depending on backwards navigation mode
+                    // Modes: one of: [back, return, close, none]
                     return <Container onClick={() => back()}>
                         <Icon icon={"arrow-left"}/>
                     </Container>

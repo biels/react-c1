@@ -4,6 +4,8 @@ import _ from 'lodash';
 import TabBar, { TabBarProps } from './components/TabBar';
 import Page, { BasicPageProps } from '../Page';
 import { Tab } from './TabsPage';
+import {PageHeaderProps} from "../components/PageHeader/PageHeader";
+import {DefaultCustomHeaderAreaProps} from "../components/PageHeader/components/DefaultCustomHeaderArea";
 
 const Container = styled.div`
     display: grid;
@@ -32,13 +34,18 @@ export interface TabsPageProps {
     route: string[]
     onChangeRoute: (route: string) => void
     // renderBody: (props) => JSX.Element
-    renderCustomHeaderArea: BasicPageProps['renderCustomHeaderArea']
+    renderCustomHeaderArea?: BasicPageProps['renderCustomHeaderArea']
     tabs: Tab[]
     title: BasicPageProps['title']
     subtitle?: BasicPageProps['subtitle']
     actions?: BasicPageProps['actions']
+    attributes?: BasicPageProps['attributes']
     entityPlane?: BasicPageProps['entityPlane']
     caption?: BasicPageProps['caption']
+    renderWithEntity?: BasicPageProps['renderWithEntity']
+    renderTagsArea?: PageHeaderProps['renderTagsArea']
+    renderAttributesArea?: PageHeaderProps['renderAttributesArea']
+    renderActionsArea?: PageHeaderProps['renderActionsArea']
 }
 
 class TabsPage extends Component<TabsPageProps, TabsPageState> {
@@ -56,6 +63,11 @@ class TabsPage extends Component<TabsPageProps, TabsPageState> {
             caption={this.props.caption}
             renderCustomHeaderArea={this.props.renderCustomHeaderArea}
             actions={this.props.actions}
+            renderWithEntity={this.props.renderWithEntity}
+            renderActionsArea={this.props.renderActionsArea}
+            renderAttributesArea={this.props.renderAttributesArea}
+            renderTagsArea={this.props.renderTagsArea}
+            attributes={this.props.attributes}
             renderBody={({pageContext}) => {
                 const handleSelectTab = (newIndex) => {
                     // this.setState({selectedTabIndex: newIndex})
