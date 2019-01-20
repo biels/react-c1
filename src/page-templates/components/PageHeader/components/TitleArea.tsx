@@ -46,9 +46,9 @@ export interface TitleAreaProps {
 class TitleArea extends Component<TitleAreaProps> {
     render() {
         return <OuterContainer>
-            <IconContainer>
-                <Icon iconSize={32} icon={this.props.icon}/>
-            </IconContainer>
+            {this.props.icon && <IconContainer>
+              <Icon iconSize={32} icon={this.props.icon}/>
+            </IconContainer>}
             <Container>
                 <TitleLine>
                     <Title>{this.props.title}</Title>

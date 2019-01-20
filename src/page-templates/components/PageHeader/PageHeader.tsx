@@ -18,6 +18,12 @@ const Container = styled.div`
     background-color: white;
     grid-template-columns: auto auto 1fr auto;
 `
+const ArrowAndTitleContainer = styled.div`
+    display: grid;
+    grid-template-columns: auto auto;
+    grid-gap: 4px;
+    align-items: center;
+`
 
 export interface PageHeaderProps {
     title: TitleAreaProps['title']
@@ -43,9 +49,11 @@ class PageHeader extends Component<PageHeaderProps> {
             attributes={this.props.attributes}
         />;
         return <Container>
-            <BackArrow/>
-            <TitleArea icon={this.props.icon || _.get(entity, 'entityInfo.display.icon')}
-                       title={this.props.title} subtitle={this.props.subtitle}/>
+            <ArrowAndTitleContainer>
+                <BackArrow/>
+                <TitleArea icon={this.props.icon || _.get(entity, 'entityInfo.display.icon')}
+                           title={this.props.title} subtitle={this.props.subtitle}/>
+            </ArrowAndTitleContainer>
             {this.props.renderCustomHeaderArea(this.props.entity) || defaultCustomHeaderArea}
             <ActionArea actions={this.props.actions}/>
         </Container>
