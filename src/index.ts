@@ -29,6 +29,7 @@ import Sidebar from "./application/SidebarComponent/Sidebar";
 import Page from "./page-templates/Page";
 import {toaster} from "./application/toaster";
 import EntityView from "./layout/EntityView";
+import AttributeDisplay from "./page-templates/components/AttributeDisplay";
 
 export {
     ApplicationBody,
@@ -61,5 +62,6 @@ export {
     Page,
     Placeholder,
     WIPComponent,
+    AttributeDisplay,
     toaster
 }
