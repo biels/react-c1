@@ -1,26 +1,30 @@
-import React, {Attributes, Component} from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
 import _ from 'lodash';
 
 const Container = styled.div`
   display: flex;
-  height: 100%;
+  height: 42px;
   align-items: center;
 `;
 const Divider = styled.div`
   height: 100%;
-  width: 0.98px;
+  width: 2px;
+  transform: scaleX(0.5);
+  outline: 1px solid transparent;
   background: linear-gradient(white, gray, white);
 `;
 const HalfDivider = styled.div`
   align-self: flex-end;
   height: 50%;
-  width: 0.98px;
+  width: 2px;
+  transform: scaleX(0.5);
   background: linear-gradient(gray, white);
 
 `;
 const AttributeContainer = styled.div`
   display: flex;
+  min-height: 45px;
   align-items: center;
   justify-content: center;
   margin: 4px    
@@ -83,7 +87,7 @@ const Attribute = (props: AttributeProps) => {
             </AttributeNameContainer>
             <AttributeValueSectionContainer>
                 <AttributeValueContainer>
-                    {props.value}
+                    {props.value || '---'}
                 </AttributeValueContainer>
                 {unitPresent && <AttributeUnitContainer>{props.unit}</AttributeUnitContainer>}
             </AttributeValueSectionContainer>
@@ -108,19 +112,26 @@ const intersperse = (a, e) => a.reduce((p, c, i) => (p[2 * i] = c, p), new Array
 
 class AttributeDisplay extends Component<AttributeDisplayProps> {
     render() {
-        if (this.props.attributes == null) return null;
-        const mapAttribute = (a: AttributeDescription) => <Attribute {...a}/>;
+        let attributes = this.props.attributes;
+        if (attributes == null) return null;
+        attributes = attributes
+            .filter(a => a != null)
+            .filter(a => _.isArray(a) || a.value != null)
+        console.log(`Attributes`, attributes, this.props.attributes);
+        const mapAttribute = (a: AttributeDescription, i) => <Attribute key={a.name + i} {...a}/>;
         const mapGroup = (group: AttributeGroup) => {
-            console.log(`Mapping group`, group);
-            return intersperse(group.map(mapAttribute), <HalfDivider/>)
+            console.log(`[G] Mapping group`, group);
+            return intersperse(group
+                .map(mapAttribute), <HalfDivider/>)
         };
-        let items = intersperse(this.props.attributes.map((attribute) => {
-            if (_.isArray(attribute)) {
-                return mapGroup(attribute);
-            } else {
-                return mapAttribute(attribute);
-            }
-        }), <Divider/>);
+        let items = intersperse(attributes
+            .map((attribute, i) => {
+                if (_.isArray(attribute)) {
+                    return mapGroup(attribute);
+                } else {
+                    return mapAttribute(attribute, i);
+                }
+            }), <Divider/>);
         return <Container>
             {items}
         </Container>;

@@ -86,6 +86,7 @@ class Page extends Component<BasicPageProps> {
         return <ErrorBoundary>
             <PageContextSpy>
                 {(pageContext: ProvidedPageContext) => {
+
                     const renderChildren = (entity?: EntityRenderProps) =>
                         <Container onMouseDown={this.handleMouseDown(pageContext.back)} tabIndex="0"
                                    onKeyDown={this.handleKeyDown(pageContext.back)}>

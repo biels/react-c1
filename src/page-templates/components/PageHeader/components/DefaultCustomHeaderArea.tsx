@@ -24,7 +24,7 @@ export interface DefaultCustomHeaderAreaProps {
     renderTagsArea?: (entity: EntityRenderProps) => JSX.Element
     renderAttributesArea?: (entity: EntityRenderProps) => JSX.Element
     renderActionsArea?: (entity: EntityRenderProps) => JSX.Element
-    attributes?: AttributesProp
+    attributes?: AttributesProp | ((entity: EntityRenderProps) => AttributesProp)
 }
 // [Tags] [Attributes] [Actions]
 class DefaultCustomHeaderArea extends Component<DefaultCustomHeaderAreaProps> {
@@ -33,10 +33,11 @@ class DefaultCustomHeaderArea extends Component<DefaultCustomHeaderAreaProps> {
     }
     render() {
         const entity = this.props.entity;
+        let attributes = _.isFunction(this.props.attributes) ? this.props.attributes(entity) : this.props.attributes
         return <Container>
             <DefaultMultiContainer>{this.props.renderTagsArea && this.props.renderTagsArea(entity)}</DefaultMultiContainer>
             <div>{this.props.renderAttributesArea && this.props.renderAttributesArea(entity) ||
-            <AttributeDisplay attributes={this.props.attributes}/>}</div>
+            <AttributeDisplay attributes={attributes}/>}</div>
             {this.props.renderActionsArea && this.props.renderActionsArea(entity)}
         </Container>
     }
