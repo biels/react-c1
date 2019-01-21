@@ -192,7 +192,7 @@ class EntityView extends Component<EntityViewProps> {
                     initialValues = {
                         ...initialValues, ...associationValues
                     }
-                    console.log(`Creating associationValues`, associationValues, initialValues);
+                    // console.log(`Creating associationValues`, associationValues, initialValues);
                 }
                 return <Form onSubmit={handleSubmit}
                              initialValues={this.optimisticValues == null ? initialValues : this.optimisticValues}
@@ -200,7 +200,7 @@ class EntityView extends Component<EntityViewProps> {
                 >
                     {(form) => {
                         if (this.props.onFormReady) this.props.onFormReady(form)
-                        console.log(`Rendered `, initialValues, this.optimisticValues);
+                        // console.log(`Rendered `, initialValues, this.optimisticValues);
                         return <form onSubmit={form.handleSubmit}>
                             {d() && 'Associating: ' + JSON.stringify(Object.keys(associationValues))}
                             {d() && ' Values: ' + JSON.stringify(form.values)}

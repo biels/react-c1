@@ -117,10 +117,8 @@ class AttributeDisplay extends Component<AttributeDisplayProps> {
         attributes = attributes
             .filter(a => a != null)
             .filter(a => _.isArray(a) || a.value != null)
-        console.log(`Attributes`, attributes, this.props.attributes);
         const mapAttribute = (a: AttributeDescription, i) => <Attribute key={a.name + i} {...a}/>;
         const mapGroup = (group: AttributeGroup) => {
-            console.log(`[G] Mapping group`, group);
             return intersperse(group
                 .map(mapAttribute), <HalfDivider/>)
         };

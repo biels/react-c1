@@ -82,7 +82,6 @@ class Page extends Component<BasicPageProps> {
 
     render() {
         if (this.state.hasError) return <div>Something went wrong in page</div>;
-        console.log(`Attrs`, this.props.attributes);
         return <ErrorBoundary>
             <PageContextSpy>
                 {(pageContext: ProvidedPageContext) => {
