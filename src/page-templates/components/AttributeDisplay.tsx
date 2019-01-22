@@ -122,14 +122,16 @@ class AttributeDisplay extends Component<AttributeDisplayProps> {
             return intersperse(group
                 .map(mapAttribute), <HalfDivider/>)
         };
-        let items = intersperse(attributes
+        let filteredAttributes = attributes
             .map((attribute, i) => {
                 if (_.isArray(attribute)) {
                     return mapGroup(attribute);
                 } else {
                     return mapAttribute(attribute, i);
                 }
-            }), <Divider/>);
+            });
+        if(filteredAttributes.length === 0) return null;
+        let items = intersperse(filteredAttributes, <Divider/>);
         return <Container>
             {items}
         </Container>;

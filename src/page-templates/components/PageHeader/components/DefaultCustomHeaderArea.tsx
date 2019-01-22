@@ -12,12 +12,13 @@ const Container = styled.div`
     grid-gap: 8px;
     align-items: center;
 `
-const DefaultMultiContainer = styled.div`
+const TagsMultiContainer = styled.div`
     display: grid;
     grid-auto-columns: auto;
     grid-auto-flow: column;
     grid-gap: 8px;
     align-items: center;
+    justify-items: center;
 `
 export interface DefaultCustomHeaderAreaProps {
     entity?: EntityRenderProps
@@ -34,8 +35,9 @@ class DefaultCustomHeaderArea extends Component<DefaultCustomHeaderAreaProps> {
     render() {
         const entity = this.props.entity;
         let attributes = _.isFunction(this.props.attributes) ? this.props.attributes(entity) : this.props.attributes
+        if(entity && entity.items.length === 0) return <div></div>
         return <Container>
-            <DefaultMultiContainer>{this.props.renderTagsArea && this.props.renderTagsArea(entity)}</DefaultMultiContainer>
+            <TagsMultiContainer>{this.props.renderTagsArea && this.props.renderTagsArea(entity)}</TagsMultiContainer>
             <div>{this.props.renderAttributesArea && this.props.renderAttributesArea(entity) ||
             <AttributeDisplay attributes={attributes}/>}</div>
             {this.props.renderActionsArea && this.props.renderActionsArea(entity)}
