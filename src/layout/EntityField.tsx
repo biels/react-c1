@@ -131,6 +131,7 @@ class EntityField extends Component<EntityFieldProps> {
                         const selectedValue = values.find((v) => v.value === formInput.value) || emptyItem
                         const select = <Select items={values}
                                                filterable={false}
+                                               noResults={<MenuItem disabled={true} text={`No hi ha valors definits`} />}
                                                itemRenderer={(item, info) => <MenuItem onClick={info.handleClick}
                                                                                        text={item.display || item.value}
                                                                                        icon={item.icon}
@@ -173,9 +174,11 @@ class EntityField extends Component<EntityFieldProps> {
                                         // Change to support different association formats
                                         formInput.onChange({connect: {id: item.id}});
                                     }}
+                                    noResults={<MenuItem disabled={true} text={`No hi ha ${_.get(entity, 'entityInfo.display.plural', 'elements').toLowerCase()}`} />}
                                     activeItem={selectedItem}
                                     filterable={false}
                                     disabled={this.props.disabled}
+                                    popoverProps={{minimal: true}}
                                 >
                                     <Button name={field.name} text={getDisplayName(selectedItem)} rightIcon="double-caret-vertical"
                                             icon={entity.entityInfo.display.icon} disabled={this.props.disabled}/>
