@@ -38,7 +38,7 @@ const Container = styled.div`
     grid-template-areas: 
     "GridHeader ."
     "GridContainer GridToolbar"
-    "GridFooter ."
+    //"GridFooter ."
 `;
 
 const GridContainerArea = styled.div<{ height: number | string, baseNegativeOffset: number }>`
@@ -481,9 +481,9 @@ class EntityGrid extends Component<EntityGridProps> {
                                      <div>Id: {entity.selectedId}</div>*/}
                                 </GridToolbarContainer>
                             </GridToolbarArea>
-                            <GridFooterArea>
+                            {footer && <GridFooterArea>
                                 {footer}
-                            </GridFooterArea>
+                            </GridFooterArea>}
                         </Container>;
                     }}
                 </Entity></ErrorBoundary>
