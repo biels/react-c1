@@ -9,7 +9,7 @@ import {DefaultCustomHeaderAreaProps} from "../components/PageHeader/components/
 
 const Container = styled.div`
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
 `
 
 export interface Tab {

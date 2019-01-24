@@ -7,7 +7,7 @@ const Container = styled.div`
     justify-content: left;
     grid-auto-flow: column;
     grid-auto-columns: auto 1px;
-    grid-gap: 4px;
+    grid-gap: 3px;
     height: auto;
     padding: 2px 8px;
     background-color: white;
@@ -16,7 +16,7 @@ const Container = styled.div`
 const TabButton = styled.div<{ selected: boolean }>`
     display: flex;
     justify-content: center;
-    padding: 4px;
+    padding: 4px 5px;
     border-radius: 3px;
     color: #5990b6;
     cursor:pointer;
@@ -35,8 +35,8 @@ const TabButton = styled.div<{ selected: boolean }>`
     `}
 `
 const TabSeparator = styled.div`
-    width: 1px;
-    max-width: 1px;
+    width: 2px;
+    transform: scaleX(0.55);
     height: 100%;
     background: linear-gradient(white, lightblue, white);
 `

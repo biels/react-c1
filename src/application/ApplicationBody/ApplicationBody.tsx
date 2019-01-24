@@ -9,15 +9,18 @@ const Container = styled.div`
     background-color: aqua;
     min-height: 0px;
 `
+interface ApplicationBodyProps {
+    maxHiddenFrames?
+    maxHiddenStacks?
+}
 
-
-class ApplicationBody extends Component {
+class ApplicationBody extends Component<ApplicationBodyProps> {
     render() {
         return (
             <React.Fragment>
                 {/* Or login screen if not logged in */}
                 {/* Or error page*/}
-                <NavigationPageRenderer maxHiddenFrames={0} maxHiddenStacks={0}/>
+                <NavigationPageRenderer maxHiddenFrames={this.props.maxHiddenFrames || 4} maxHiddenStacks={this.props.maxHiddenStacks || 6}/>
             </React.Fragment>
         );
     }
