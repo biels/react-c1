@@ -13,7 +13,7 @@ const Container = styled.div`
 export type Action = {
     name: string
     iconName?: IconName
-    callback: (e) => any
+    callback: (e: React.MouseEvent<HTMLElement>) => any
     text?: any
     tooltip?: string
     intent?: Intent,

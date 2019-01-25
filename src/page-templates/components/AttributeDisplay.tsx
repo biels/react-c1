@@ -45,7 +45,7 @@ const AttributeValueContainer = styled.div`
     
 `;
 const AttributeUnitContainer = styled.div`
-    margin-left: 1.5px;
+    margin-left: 0.22em;
 `;
 const AttributeInnerDivContainer = styled.div`
   display: flex;

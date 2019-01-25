@@ -114,6 +114,7 @@ export interface EntityGridProps {
     selectAllFilter?: (it) => boolean
     selectAllText?: string
     associate?: { [entityName: string]: EntityRenderProps } | EntityRenderProps
+    readOnly?: boolean
 }
 
 let gridId = 0;
@@ -252,6 +253,9 @@ class EntityGrid extends Component<EntityGridProps> {
                             }
                         };
                         let display = entity.entityInfo.display;
+                        const defaultEditActions = [
+
+                        ]
                         const defaultActions = [
                             {
                                 name: 'refresh',
@@ -261,15 +265,15 @@ class EntityGrid extends Component<EntityGridProps> {
                             },
                             {
                                 name: 'open',
-                                iconName: 'edit',
-                                text: 'Details / Edit',
-                                callback: () => entity.openInOwnPage(entity.selectedItem.id as number, {}, true),
+                                iconName: display.icon || 'edit',
+                                text: `Obre ${display.gender ? 'el' : 'la'} ${display.singular} (ctrl clic nova pestanya)`,
+                                callback: ({ctrlKey}) => entity.openInOwnPage(entity.selectedItem.id as number, {inNewTab: ctrlKey, focusNewTab: ctrlKey}, true),
                             },
                             {
                                 name: 'new',
                                 iconName: 'document',
                                 text: `${display.gender ? 'Nou' : 'Nova'} ${display.singular}`,
-                                callback: creationCallback,
+                                callback: creationCallback
                             },
                             {
                                 name: 'remove',
@@ -284,10 +288,11 @@ class EntityGrid extends Component<EntityGridProps> {
                         // to the template ones.
                         let providedActions = this.props.actions;
                         if (_.isFunction(providedActions)) providedActions = providedActions(entity);
-                        const actions = providedActions.map(pa => {
+                        let actions = providedActions.map(pa => {
                             let foundAction = defaultActions.find(da => da.name === pa.name);
                             return Object.assign({}, foundAction, pa);
                         });
+                        if(this.props.readOnly) actions = actions.filter(a => !['new', 'remove'].includes(a.name))
                         const isCreateImplemented: boolean = actions.map(a => a.name).includes('new')
 
                         const selectionActions: Action[] = [
