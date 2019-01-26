@@ -115,6 +115,7 @@ export interface EntityGridProps {
     selectAllText?: string
     associate?: { [entityName: string]: EntityRenderProps } | EntityRenderProps
     readOnly?: boolean
+    params?
 }
 
 let gridId = 0;
@@ -219,7 +220,7 @@ class EntityGrid extends Component<EntityGridProps> {
             <ErrorBoundary>
                 <Entity name={this.props.name} relation={this.props.relation}
                         fetchPolicy={this.props.fetchPolicy}
-                        query={this.props.query} poll={this.props.poll}>
+                        query={this.props.query} params={this.props.params} poll={this.props.poll}>
                     {(entity: EntityRenderProps) => {
                         const footer = this.props.renderFooter && this.props.renderFooter({
                             gridApi: this.gridApi,
@@ -265,9 +266,14 @@ class EntityGrid extends Component<EntityGridProps> {
                             },
                             {
                                 name: 'open',
-                                iconName: display.icon || 'edit',
+                                iconName: 'edit' || display.icon,
                                 text: `Obre ${display.gender ? 'el' : 'la'} ${display.singular} (ctrl clic nova pestanya)`,
-                                callback: ({ctrlKey}) => entity.openInOwnPage(entity.selectedItem.id as number, {inNewTab: ctrlKey, focusNewTab: ctrlKey}, true),
+                                callback: (e) => {
+                                    return entity.openInOwnPage(entity.selectedItem.id as number, {
+                                        inNewTab: e,
+                                        focusNewTab: e
+                                    }, true);
+                                },
                             },
                             {
                                 name: 'new',

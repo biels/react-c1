@@ -29,6 +29,7 @@ export interface MasterDetailViewProps {
     renderDetailView: (renderProps: MasterDetailViewRenderProps) => any
     wrapperComponent?: ComponentType<any>
     allowMulti: boolean
+    params?
 }
 
 class MasterDetailView extends Component<MasterDetailViewProps> {
@@ -39,12 +40,12 @@ class MasterDetailView extends Component<MasterDetailViewProps> {
 
     render() {
         const Container = this.props.wrapperComponent;
-        return <Entity name={this.props.name} relation={this.props.relation} additionalRefetchQueries={this.props.additionalRefetchQueries} fetchPolicy={this.props.fetchPolicy} query={this.props.masterQuery || this.props.query}>
+        return <Entity name={this.props.name} relation={this.props.relation} additionalRefetchQueries={this.props.additionalRefetchQueries} fetchPolicy={this.props.fetchPolicy} query={this.props.masterQuery || this.props.query} params={this.props.params}>
             {(masterEntity) => {
                 // TODO Add master distinction here
                 return <Container>
                     {this.props.renderMasterView({ entity: masterEntity })}
-                    <Entity fetchPolicy={this.props.detailFetchPolicy || this.props.fetchPolicy} query={this.props.query}>
+                    <Entity fetchPolicy={this.props.detailFetchPolicy || this.props.fetchPolicy} query={this.props.query} params={this.props.params} detail>
                         {(detailEntity) => {
                             let display = detailEntity.entityInfo.display;
                             if(detailEntity.selectedItem == null){

@@ -1,7 +1,8 @@
 import React, {Component, SyntheticEvent} from 'react';
 import styled, {css} from "styled-components";
 import _ from "lodash";
-import {Icon} from "@blueprintjs/core";
+import {ContextMenu, Icon, Menu, MenuItem} from "@blueprintjs/core";
+import {SortableElement} from "react-sortable-hoc";
 
 const Container = styled.div<{ selected: boolean }>`
     cursor: default;
@@ -9,6 +10,7 @@ const Container = styled.div<{ selected: boolean }>`
     height: 24px;
     min-width: 150px;
     max-width: 200px;
+    user-select: none;
     border-radius: 5px 5px 0px 0px;
     ${({selected}) => selected ? css`
         background-color: white;
@@ -50,6 +52,8 @@ export interface TabComponentProps {
     onClose?: () => void
     onCloseClick?: () => void
     onClick: () => void
+    onNewTabClick: () => void
+    onDuplicateTabClick: () => void
 }
 
 class TabComponent extends Component<TabComponentProps> {
@@ -63,10 +67,25 @@ class TabComponent extends Component<TabComponentProps> {
             e.preventDefault()
             e.stopPropagation()
             this.props.onCloseClick()
+        }else if (nativeEvent.button == 2) {
+            const menu = <Menu>
+                <MenuItem icon={'plus'} onClick={() => this.props.onNewTabClick()} text="Nova pestanya" />
+                <MenuItem icon={'duplicate'} onClick={() => this.props.onDuplicateTabClick()} text="Duplica" />
+                <MenuItem icon={'refresh'} onClick={() => null} text="Refresca" />
+                <MenuItem icon={'cross'} onClick={() => this.props.onCloseClick()} text="Tanca" />
+            </Menu>
+
+            // mouse position is available on event
+            ContextMenu.show(menu, { left: nativeEvent.clientX, top: nativeEvent.clientY }, () => {
+                // menu was closed; callback optional
+            });
+        }else{
+            this.props.onClick()
         }
     }
     render() {
-        return <Container selected={this.props.active} onClick={this.props.onClick} onMouseDown={this.handleMouseDown}>
+
+        return <Container selected={this.props.active} onMouseDown={this.handleMouseDown}>
             <ContentContainer>
                 <LabelContainer>{this.props.title}</LabelContainer>
                 <IconContainer onClick={this.handleCloseClick}><Icon icon={'cross'}/></IconContainer>

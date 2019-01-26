@@ -73,6 +73,7 @@
     "react-final-form": "^4.0.2",
     "react-final-form-listeners": "^1.0.1",
     "react-navigation-plane": "^2.0.0",
+    "react-sortable-hoc": "^1.5.3",
     "react-text-mask": "^5.4.3",
     "text-mask-addons": "^3.8.0"
   },

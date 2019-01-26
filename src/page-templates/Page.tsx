@@ -13,11 +13,14 @@ import {DefaultCustomHeaderAreaProps} from "./components/PageHeader/components/D
 
 const Container = styled.div`
     display: grid;
-    grid-template-rows: auto 1fr;
+    grid-template-rows: auto minmax(0px, 1fr);
     height: 100%;
-    //overflow: hidden;
     //min-height: 0px;
 `;
+const BodyContainer = styled.div`
+    overflow: auto;
+    height: 100%;
+`
 
 export interface BodyRenderArgs {
     pageContext: ProvidedPageContext
@@ -27,6 +30,7 @@ export interface BodyRenderArgs {
 export interface BasicPageProps {
     title: PageHeaderProps['title'],
     subtitle?: PageHeaderProps['subtitle']
+    icon?: PageHeaderProps['icon']
     actions: PageHeaderProps['actions']
     attributes?: DefaultCustomHeaderAreaProps['attributes']
     renderCustomHeaderArea: PageHeaderProps['renderCustomHeaderArea']
@@ -92,6 +96,7 @@ class Page extends Component<BasicPageProps> {
                             <InstanceTitle title={this.props.caption(this.props.title, this.props.subtitle)}/>
                             <ErrorBoundary>
                                 <PageHeader title={this.props.title} subtitle={this.props.subtitle}
+                                            icon={this.props.icon}
                                             actions={this.props.actions}
                                             entity={entity}
                                             renderCustomHeaderArea={this.props.renderCustomHeaderArea}
@@ -102,7 +107,9 @@ class Page extends Component<BasicPageProps> {
                                 />
                             </ErrorBoundary>
                             <ErrorBoundary>
-                                {this.props.renderBody({pageContext: pageContext, entity})}
+                                <BodyContainer>
+                                    {this.props.renderBody({pageContext: pageContext, entity})}
+                                </BodyContainer>
                             </ErrorBoundary>
                         </Container>
                     return <EntityContextProvider entityPlaneInfo={this.props.entityPlane}

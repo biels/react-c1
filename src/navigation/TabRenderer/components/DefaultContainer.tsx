@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import styled from "styled-components";
 import _ from "lodash";
+import {SortableContainer} from "react-sortable-hoc";
 
 const DefaultContainer = styled.div`
     height: 100%;
