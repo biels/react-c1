@@ -59,7 +59,7 @@
     "typescript": "^3.2.1"
   },
   "dependencies": {
-    "@blueprintjs/datetime": "^3.5.0",
+    "@blueprintjs/datetime": "^3.7.0",
     "@blueprintjs/select": "^3.4.0",
     "@types/moment": "^2.13.0",
     "ag-grid-community": "^19.1.4",
@@ -69,7 +69,7 @@
     "final-form-focus": "^1.1.0",
     "moment": "^2.23.0",
     "object-diff": "^0.0.4",
-    "react-entity-plane": "^1.0.9",
+    "react-entity-plane": "^1.0.11",
     "react-final-form": "^4.0.2",
     "react-final-form-listeners": "^1.0.1",
     "react-navigation-plane": "^2.0.0",
