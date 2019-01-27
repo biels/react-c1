@@ -201,7 +201,7 @@ class EntityGrid extends Component<EntityGridProps> {
                 if (params.value == null) return null;
                 let entityInfo: EntityInfo = (params as any).entityInfo;
                 return <div><Icon style={{color: '#A8B4BD'}} icon={_.get(entityInfo, 'display.icon')}/><span
-                    style={{paddingLeft: 4}}>{getDisplayName(params.value)}</span></div>;
+                    style={{paddingLeft: 4}}>{getDisplayName(entityInfo, params.value)}</span></div>;
             },
             dateCellRenderer: (params: ICellRendererParams) => {
                     if(params.value == null) return null;
