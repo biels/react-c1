@@ -49,7 +49,7 @@ class MasterDetailView extends Component<MasterDetailViewProps> {
                         {(detailEntity) => {
                             let display = detailEntity.entityInfo.display;
                             if(detailEntity.selectedItem == null){
-                                return <NonIdealState title={`Selecciona un ${display.singular.toLowerCase()}`} icon={(display.icon || "person") as any}/>
+                                return <NonIdealState title={`Selecciona ${display.gender ? 'un' : 'una'} ${display.singular.toLowerCase()}`} icon={(display.icon || "person") as any}/>
                             }
                             let count = detailEntity.selectedIds.length;
                             if(!this.props.allowMulti && count > 1){

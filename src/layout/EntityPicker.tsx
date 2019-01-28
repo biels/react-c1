@@ -49,7 +49,7 @@ class EntityPicker extends Component<EntityPickerProps> {
                 };
                 return <OuterContainer>
                     <GenericDialog
-                        title={`Seleccione un elemento`}
+                        title={`Selecciona un element`}
                         isOpen={this.props.isOpen} onClose={handleClose}>
                         <Container>
                             <MasterDetailView
