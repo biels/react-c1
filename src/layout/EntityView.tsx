@@ -7,7 +7,6 @@ import EntityField from "./EntityField";
 import FormAutoSave from "./FormAutoSave";
 import {Entity, EntityContextProvider, EntityFieldInfo, EntityProps, EntityRenderProps} from 'react-entity-plane';
 import {EntityFieldType} from "react-entity-plane/src/types/fieldsInfo";
-import {renderToJson} from "enzyme-to-json";
 import createDecorator from 'final-form-focus'
 import {D} from "../page-templates/utils/debug";
 
@@ -51,6 +50,7 @@ export interface EntityViewProps {
     onSubmit?: (entity: EntityRenderProps, values: object, mode: 'editing' | 'creating', form: FormApi, callback) => any
     afterSubmit?: () => any
     transform?: (values) => object
+    initialValues?
 }
 
 /**
@@ -157,7 +157,6 @@ class EntityView extends Component<EntityViewProps> {
                     .filter(f => f.type === EntityFieldType.relation)
                     .map(f => f.name);
                 let initialValues = {};
-
                 if (editing) {
                     let associationValues = relationFieldNames.map(rf => {
                         if (entity.selectedItem == null) return null;
@@ -167,7 +166,7 @@ class EntityView extends Component<EntityViewProps> {
                     }).reduce((previousValue, currentValue, i) => {
                         return Object.assign(previousValue, currentValue)
                     }, {});
-                    initialValues = _.pick(entity.selectedItem, valueFieldNames);
+                    initialValues = {..._.pick(entity.selectedItem, valueFieldNames)};
                     initialValues = {
                         ...initialValues, ...associationValues
                     }
@@ -177,7 +176,6 @@ class EntityView extends Component<EntityViewProps> {
                     .filter(rf => _.keys(associate).includes(rf) && associate[rf] != null)
                     .map(rf => {
                         const associateElement = associate[rf];
-                        console.log('associateElement', associateElement);
                         if (associateElement == null) return null;
                         let selectedItem = associateElement.selectedItem;
                         if (selectedItem == null) return null;
@@ -186,12 +184,24 @@ class EntityView extends Component<EntityViewProps> {
                         return Object.assign(previousValue, currentValue)
                     }, {});
                 if (creating) {
+                    const externalInitialValues = this.props.initialValues || {}
                     initialValues = entity.entityInfo.fields
-                        .map(f => (f.default != null ? {[f.name]: f.default} : {}))
+                        .map(f => {
+                            if(externalInitialValues[f.name] != null) {
+                                // Copy relations
+                                if(f.type === EntityFieldType.relation) return {[f.name]: {connect: {id: externalInitialValues[f.name].id}}}
+                                // Copy value objects
+                                return {[f.name]: externalInitialValues[f.name]}
+                            }
+                            // Use defaults
+                            return (f.default != null ? {[f.name]: f.default} : {});
+                        })
                         .reduce((o1, o2) => Object.assign(o1, o2), {})
                     initialValues = {
                         ...initialValues, ...associationValues
                     }
+                    // Remove id since we are creating a new instance
+                    initialValues['id'] = undefined
                     // console.log(`Creating associationValues`, associationValues, initialValues);
                 }
                 return <Form onSubmit={handleSubmit}
