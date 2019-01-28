@@ -113,6 +113,7 @@ class EntityField extends Component<EntityFieldProps> {
                         const parseDate = raw => moment(raw, format).toDate()
                         const formatDate = date => moment(date).format(format)
                         return renderFormGroup(formInput, <DateInput
+                            maxDate={moment().add(5, 'year').toDate()}
                             parseDate={parseDate}
                             formatDate={formatDate}
                             name={field.name}
