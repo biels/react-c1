@@ -320,6 +320,7 @@ class EntityGrid extends Component<EntityGridProps> {
                         ];
                         let columnDefs: AgGridColumnProps[] = this.props.columnDefs as AgGridColumnProps[];
                         if (_.isFunction(columnDefs)) columnDefs = columnDefs(entity);
+                        columnDefs = columnDefs.filter(cd => cd != null && cd.field != null)
                         // Process provided column defs
 
                         const getExtraColumns = (): AgGridColumnProps[] => {
