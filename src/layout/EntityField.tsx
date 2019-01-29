@@ -167,7 +167,7 @@ class EntityField extends Component<EntityFieldProps> {
                                     items={entity.items}
                                     itemRenderer={(item, info) => {
                                         return <MenuItem onClick={info.handleClick} disabled={false}
-                                                         text={getDisplayName(entityInfo, item)}/>;
+                                                         text={getDisplayName(entity.entityInfo, item)}/>;
                                     }}
                                     onItemSelect={(item, event) => {
                                         //console.log(`selected `, item);
@@ -181,7 +181,7 @@ class EntityField extends Component<EntityFieldProps> {
                                     disabled={this.props.disabled}
                                     popoverProps={{minimal: true}}
                                 >
-                                    <Button name={field.name} text={getDisplayName(entityInfo, selectedItem)} rightIcon="double-caret-vertical"
+                                    <Button name={field.name} text={getDisplayName(entity.entityInfo, selectedItem)} rightIcon="double-caret-vertical"
                                             icon={entity.entityInfo.display.icon} disabled={this.props.disabled}/>
                                 </Select>;
                                 return renderFormGroup(formInput, select)
