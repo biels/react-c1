@@ -108,7 +108,24 @@ export interface AttributeDisplayProps {
     attributes: AttributesProp
 }
 
-const intersperse = (a, e) => a.reduce((p, c, i) => (p[2 * i] = c, p), new Array(2 * a.length - 1).fill(e));
+// const intersperse = (a, e) => a.reduce((p, c, i) => (p[2 * i] = c, p), new Array(2 * a.length - 1).fill(e()));
+function intersperse(array, something) {
+    if (array.length < 2) { return array }
+    var result = [], i = 0, l = array.length
+    if (typeof something == 'function') {
+        for (; i < l; i ++) {
+            if (i !== 0) { result.push(something()) }
+            result.push(array[i])
+        }
+    }
+    else {
+        for (; i < l; i ++) {
+            if (i !== 0) { result.push(something) }
+            result.push(array[i])
+        }
+    }
+    return result
+}
 
 class AttributeDisplay extends Component<AttributeDisplayProps> {
     render() {
@@ -120,7 +137,7 @@ class AttributeDisplay extends Component<AttributeDisplayProps> {
         const mapAttribute = (a: AttributeDescription, i) => <Attribute key={a.name + i} {...a}/>;
         const mapGroup = (group: AttributeGroup) => {
             return intersperse(group
-                .map(mapAttribute), <HalfDivider/>)
+                .map(mapAttribute), () => <HalfDivider key={Math.random().toFixed(4)}/>)
         };
         let filteredAttributes = attributes
             .map((attribute, i) => {
