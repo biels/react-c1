@@ -64,6 +64,7 @@ class EntityView extends Component<EntityViewProps> {
         associate: {}
     }
     optimisticValues = null
+    optimisticValuesId = null
     onSubmit = (entity, values, mode, form, callback) => {
         values = this.props.transform(values)
         if (mode === 'editing') {
@@ -146,10 +147,11 @@ class EntityView extends Component<EntityViewProps> {
             if (editing || creating) {
                 const handleSubmit: FormProps['onSubmit'] = (values, form, callback) => {
                     // console.log(`Mode`, mode);
+                    this.optimisticValuesId = entity.selectedItem.id
                     this.optimisticValues = {...form.getState().values}
                     this.onSubmit(entity, values, mode as any, form, callback);
-                    this.optimisticValues = null
                     this.props.afterSubmit()
+                    // setTimeout(() => this.optimisticValues = null, 1000)
                 };
                 let valueFieldNames = entity.entityInfo.fields
                     .filter(f => f.type !== EntityFieldType.relation)
@@ -205,9 +207,10 @@ class EntityView extends Component<EntityViewProps> {
                     initialValues['id'] = undefined
                     // console.log(`Creating associationValues`, associationValues, initialValues);
                 }
+                let useOptimisticValues = this.optimisticValues != null && this.optimisticValuesId === _.get(entity, 'selectedItem.id');
                 return <Form onSubmit={handleSubmit}
-                             initialValues={this.optimisticValues == null ? initialValues : this.optimisticValues}
-                             decorators={[focusOnErrors]}
+                                                                   initialValues={useOptimisticValues ? this.optimisticValues : initialValues}
+                                                                   decorators={[focusOnErrors]}
                 >
                     {(form) => {
                         if (this.props.onFormReady) this.props.onFormReady(form)

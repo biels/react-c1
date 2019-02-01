@@ -131,12 +131,16 @@ class EntityField extends Component<EntityFieldProps> {
                         };
                         const selectedValue = values.find((v) => v.value === formInput.value) || emptyItem
                         const select = <Select items={values}
-                                               filterable={false}
+                                               filterable={values.length > 4}
                                                noResults={<MenuItem disabled={true} text={`No hi ha valors definits`} />}
                                                itemRenderer={(item, info) => <MenuItem key={item.value} onClick={info.handleClick}
                                                                                        text={item.display || item.value}
                                                                                        icon={item.icon}
                                                                                        intent={item.intent}/>}
+                                               itemPredicate={(query, item: any) => {
+                                                   return `${(item.display || '').toLowerCase()} ${(item.value || '').toString().toLowerCase()}`.indexOf(query.toLowerCase()) >= 0
+                                               }}
+                                               popoverProps={{minimal: true}}
                                                onItemSelect={(item, event) => formInput.onChange(item.value)}>
                             <Button rightIcon="double-caret-vertical"
                                     icon={selectedValue.icon}
@@ -169,6 +173,11 @@ class EntityField extends Component<EntityFieldProps> {
                                         return <MenuItem key={item.id} onClick={info.handleClick} disabled={false}
                                                          text={getDisplayName(entity.entityInfo, item)}/>;
                                     }}
+                                    itemPredicate={(query, item: any) => {
+                                        let s = getDisplayName(entity.entityInfo, selectedItem).toLowerCase() + _.keys(item).map(k => (item[k] || '').toString().toLowerCase()).join('');
+                                        // console.log(`s`, s);
+                                        return (s).indexOf(query.toLowerCase()) >= 0
+                                    }}
                                     onItemSelect={(item, event) => {
                                         //console.log(`selected `, item);
                                         //entity.selectId(item.id as any)
@@ -177,7 +186,7 @@ class EntityField extends Component<EntityFieldProps> {
                                     }}
                                     noResults={<MenuItem key={-1} disabled={true} text={`No hi ha ${_.get(entity, 'entityInfo.display.plural', 'elements').toLowerCase()}`} />}
                                     activeItem={selectedItem}
-                                    filterable={false}
+                                    filterable={(entity.items ||[]).length > 5}
                                     disabled={this.props.disabled}
                                     popoverProps={{minimal: true}}
                                 >
@@ -196,7 +205,7 @@ class EntityField extends Component<EntityFieldProps> {
                                                name={field.name}
                                                placeholder={label}
                                                leftIcon={field.icon as any} large={false}
-                                               autoComplete={'offf'}
+                                               autoComplete={field.name}
                                                intent={intent}
                                                disabled={this.props.disabled}
                             />;
