@@ -148,6 +148,7 @@ class EntityView extends Component<EntityViewProps> {
                     // console.log(`Mode`, mode);
                     this.optimisticValues = {...form.getState().values}
                     this.onSubmit(entity, values, mode as any, form, callback);
+                    this.optimisticValues = null
                     this.props.afterSubmit()
                 };
                 let valueFieldNames = entity.entityInfo.fields
@@ -211,11 +212,11 @@ class EntityView extends Component<EntityViewProps> {
                     {(form) => {
                         if (this.props.onFormReady) this.props.onFormReady(form)
                         // console.log(`Rendered `, initialValues, this.optimisticValues);
-                        return <form onSubmit={form.handleSubmit}>
+                        return <form style={{position: 'relative'}} onSubmit={form.handleSubmit}>
                             {d() && 'Associating: ' + JSON.stringify(Object.keys(associationValues))}
                             {d() && ' Values: ' + JSON.stringify(form.values)}
                             {(editing && !creating && form.valid) &&
-                            <FormAutoSave debounce={1200} form={form} save={handleSubmit as any}/>}
+                            <FormAutoSave id={_.get(entity, 'selectedItem.id')} debounce={1200} form={form} save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
                             {/*<button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={false}>Hidden*/}
                             {/*submit*/}

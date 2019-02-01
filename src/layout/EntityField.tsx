@@ -88,7 +88,7 @@ class EntityField extends Component<EntityFieldProps> {
                 return undefined;
             };
             return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined} parse={parse}
-                              format={format} validate={validate} allowNull={true} formatOnBlur={true} >
+                              format={format} validate={validate} allowNull={false} formatOnBlur={true} >
                 {({input: formInput, meta}) => {
                     let showInvalid = (meta.invalid && !this.props.creating) || (meta.invalid && (meta.touched || meta.submitError || meta.dirty));
                     let intent = (meta.error && showInvalid) ? Intent.DANGER : null;
@@ -133,7 +133,7 @@ class EntityField extends Component<EntityFieldProps> {
                         const select = <Select items={values}
                                                filterable={false}
                                                noResults={<MenuItem disabled={true} text={`No hi ha valors definits`} />}
-                                               itemRenderer={(item, info) => <MenuItem onClick={info.handleClick}
+                                               itemRenderer={(item, info) => <MenuItem key={item.value} onClick={info.handleClick}
                                                                                        text={item.display || item.value}
                                                                                        icon={item.icon}
                                                                                        intent={item.intent}/>}
@@ -166,7 +166,7 @@ class EntityField extends Component<EntityFieldProps> {
                                 let select = <Select
                                     items={entity.items}
                                     itemRenderer={(item, info) => {
-                                        return <MenuItem onClick={info.handleClick} disabled={false}
+                                        return <MenuItem key={item.id} onClick={info.handleClick} disabled={false}
                                                          text={getDisplayName(entity.entityInfo, item)}/>;
                                     }}
                                     onItemSelect={(item, event) => {
@@ -175,7 +175,7 @@ class EntityField extends Component<EntityFieldProps> {
                                         // Change to support different association formats
                                         formInput.onChange({connect: {id: item.id}});
                                     }}
-                                    noResults={<MenuItem disabled={true} text={`No hi ha ${_.get(entity, 'entityInfo.display.plural', 'elements').toLowerCase()}`} />}
+                                    noResults={<MenuItem key={-1} disabled={true} text={`No hi ha ${_.get(entity, 'entityInfo.display.plural', 'elements').toLowerCase()}`} />}
                                     activeItem={selectedItem}
                                     filterable={false}
                                     disabled={this.props.disabled}

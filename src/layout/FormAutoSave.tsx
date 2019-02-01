@@ -9,29 +9,35 @@ import {dir} from "async";
 import {FormApi} from "final-form";
 
 const Container = styled.div`
+    position: absolute;
+    top: 16px;
+    left: calc(50% - 90px);
+    z-index: 50;
     display: grid;
     justify-content: center;
     align-items: center;
     padding: 16px;
-    border: 2px solid blue;
-    background: aqua;
+  background: white;  
+  border-radius: 8px;
 `
 
 export interface FormAutoSaveState {
     values: any
     submitting: boolean
+    id: any
 }
 
 export interface FormAutoSaveProps {
     debounce: number
     form: FormRenderProps
     save: (difference, form: FormApi) => any
+    id: any
 }
 
 class FormAutoSave extends Component<FormAutoSaveProps, FormAutoSaveState> {
     constructor(props) {
         super(props)
-        this.state = {values: props.form.initialValues, submitting: false}
+        this.state = {values: props.form.initialValues, submitting: false, id: props.id}
     }
 
     timeout: Timer
@@ -72,7 +78,7 @@ class FormAutoSave extends Component<FormAutoSaveProps, FormAutoSaveState> {
             await this.promise;
             //await handleSubmit()
             this.promise = null;
-            this.setState({submitting: false})
+            setTimeout(() => this.setState({submitting: false}), 0)
         }
     }
 
@@ -81,7 +87,7 @@ class FormAutoSave extends Component<FormAutoSaveProps, FormAutoSaveState> {
         // submitting state.
         return (
             this.state.submitting &&
-            <Container> <Spinner size={12} intent={Intent.SUCCESS}/><span>Sincronitzant...</span></Container>
+            <Container> <Spinner size={12} intent={Intent.SUCCESS}/><span>Guardant...</span></Container>
         )
     }
 }
