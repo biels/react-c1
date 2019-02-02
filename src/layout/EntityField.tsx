@@ -133,7 +133,7 @@ class EntityField extends Component<EntityFieldProps> {
                         const select = <Select items={values}
                                                filterable={values.length > 4}
                                                noResults={<MenuItem disabled={true} text={`No hi ha valors definits`} />}
-                                               itemRenderer={(item, info) => <MenuItem key={item.value} onClick={info.handleClick}
+                                               itemRenderer={(item, info) => <MenuItem key={item.value} onClick={info.handleClick as any}
                                                                                        text={item.display || item.value}
                                                                                        icon={item.icon}
                                                                                        intent={item.intent}/>}
@@ -170,7 +170,7 @@ class EntityField extends Component<EntityFieldProps> {
                                 let select = <Select
                                     items={entity.items}
                                     itemRenderer={(item, info) => {
-                                        return <MenuItem key={item.id} onClick={info.handleClick} disabled={false}
+                                        return <MenuItem key={item.id} onClick={info.handleClick as any} disabled={false}
                                                          text={getDisplayName(entity.entityInfo, item)}/>;
                                     }}
                                     itemPredicate={(query, item: any) => {

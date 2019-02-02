@@ -9,7 +9,8 @@ import {AgGridColumnProps, AgGridReact, AgGridReactProps} from 'ag-grid-react';
 import Actions from '../page-templates/Actions/Actions';
 import {
     AgGridEvent, GridApi, RowClickedEvent, RowNode, RowSelectedEvent, ICellRendererParams, ICellRendererFunc,
-    ICellRendererComp
+    ICellRendererComp,
+    ValueGetterParams
 } from 'ag-grid-community';
 import ErrorBoundary from '../page-templates/ErrorBoundary';
 import GenericDialog from "./GenericDialog";
@@ -345,6 +346,8 @@ class EntityGrid extends Component<EntityGridProps> {
                             let valueParser;
                             let valueGetter;
                             let valueSetter;
+                            let comparator: AgGridColumnProps['comparator'];
+                            let filterValueGetter: AgGridColumnProps['filterValueGetter'];
                             let editable = true;
                             if (field.type === EntityFieldType.textarea) cellEditor = 'agLargeTextCellEditor';
                             if (field.type === EntityFieldType.relation) {
@@ -359,6 +362,15 @@ class EntityGrid extends Component<EntityGridProps> {
                                 cellRendererParams.entityInfo = relationEntityInfo;
                                 cellRenderer = 'relationCellRenderer';
                                 editable = false;
+                                comparator = (valueA, valueB, nodeA, nodeB, isInverted) => {
+                                    const n1 = getDisplayName(relationEntityInfo, _.get(nodeA.data, field.name))
+                                    const n2 = getDisplayName(relationEntityInfo, _.get(nodeB.data, field.name))
+                                    return (n1 || '').localeCompare(n2)
+                                }
+                                filterValueGetter = (params: ValueGetterParams) => {
+                                    const n = getDisplayName(relationEntityInfo, _.get(params.data, field.name))
+                                    return n
+                                }
                             }
                             if (field.type === EntityFieldType.date) {
                                 //Date field
@@ -381,7 +393,9 @@ class EntityGrid extends Component<EntityGridProps> {
                                 valueFormatter,
                                 valueParser,
                                 valueGetter,
-                                valueSetter
+                                valueSetter,
+                                comparator,
+                                filterValueGetter
                             }
                         }
                         columnDefs = columnDefs.map(cd => ({...getDefaultsForColumn(cd.field), ...cd}))
@@ -432,10 +446,9 @@ class EntityGrid extends Component<EntityGridProps> {
                                                            // ..._.mapValues(associate, (a) => {
                                                            //     if (a == null) return undefined;
                                                            //     if (a.selectedItem == null) {
-                                                           //         console.log(`Could not associate with a ${a.entityInfo.name}. No item selected`);
-                                                           //     }
-                                                           //     return {connect: {id: a.selectedItem.id}}
-                                                           // })
+                                                           //         console.log(`Could not associate with a
+                                                           // ${a.entityInfo.name}. No item selected`); } return
+                                                           // {connect: {id: a.selectedItem.id}} })
                                                        }
                                                        // if(associate.create != null){
                                                        //     // Legacy
