@@ -40,9 +40,16 @@ const AttributeValueSectionContainer = styled.div`
     display: grid;
     grid-template-columns: auto auto;
     color: gray;
+    
 `;
 const AttributeValueContainer = styled.div`
-    
+    text-overflow: ellipsis;
+    max-width: 150px;
+    @media screen and (max-width: 500px) {
+        max-width: 90px;
+    }
+    white-space: nowrap;
+    overflow: hidden;
 `;
 const AttributeUnitContainer = styled.div`
     margin-left: 0.22em;

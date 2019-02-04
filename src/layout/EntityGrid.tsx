@@ -349,7 +349,11 @@ class EntityGrid extends Component<EntityGridProps> {
                             let comparator: AgGridColumnProps['comparator'];
                             let filterValueGetter: AgGridColumnProps['filterValueGetter'];
                             let editable = true;
-                            if (field.type === EntityFieldType.textarea) cellEditor = 'agLargeTextCellEditor';
+                            let width;
+                            if (field.type === EntityFieldType.textarea){
+                                cellEditor = 'agLargeTextCellEditor';
+                                width = 200;
+                            }
                             if (field.type === EntityFieldType.relation) {
                                 // Relation field, set renderer and editor
                                 const relationInfo = entityInfo.relations[field.name];
@@ -380,6 +384,10 @@ class EntityGrid extends Component<EntityGridProps> {
                                 cellRenderer = 'dateCellRenderer';
                                 editable = false
                             }
+                            if (field.type === EntityFieldType.boolean) {
+                                editable = false
+                                width = 90
+                            }
                             if (field.type === EntityFieldType.enum) {
                                 //Enum field
                                 editable = false
@@ -395,7 +403,8 @@ class EntityGrid extends Component<EntityGridProps> {
                                 valueGetter,
                                 valueSetter,
                                 comparator,
-                                filterValueGetter
+                                filterValueGetter,
+                                width
                             }
                         }
                         columnDefs = columnDefs.map(cd => ({...getDefaultsForColumn(cd.field), ...cd}))

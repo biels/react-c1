@@ -18,7 +18,7 @@ const Subtitle = styled.div`
     line-height: 110%;
 `
 const TitleLine = styled.div`
-    
+    white-space: nowrap;
 `
 const SubtitleLine = styled.div`
     
