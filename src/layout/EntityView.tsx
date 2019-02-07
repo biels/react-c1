@@ -147,7 +147,7 @@ class EntityView extends Component<EntityViewProps> {
             if (editing || creating) {
                 const handleSubmit: FormProps['onSubmit'] = (values, form, callback) => {
                     // console.log(`Mode`, mode);
-                    this.optimisticValuesId = entity.selectedItem.id
+                    this.optimisticValuesId = _.get(entity, 'selectedItem.id')
                     this.optimisticValues = {...form.getState().values}
                     this.onSubmit(entity, values, mode as any, form, callback);
                     this.props.afterSubmit()
@@ -207,7 +207,7 @@ class EntityView extends Component<EntityViewProps> {
                     initialValues['id'] = undefined
                     // console.log(`Creating associationValues`, associationValues, initialValues);
                 }
-                let useOptimisticValues = this.optimisticValues != null && this.optimisticValuesId === _.get(entity, 'selectedItem.id');
+                let useOptimisticValues = this.optimisticValues != null && this.optimisticValuesId === _.get(entity, 'selectedItem.id', -1);
                 return <Form onSubmit={handleSubmit}
                                                                    initialValues={useOptimisticValues ? this.optimisticValues : initialValues}
                                                                    decorators={[focusOnErrors]}

@@ -45,7 +45,7 @@ const AttributeValueSectionContainer = styled.div`
 const AttributeValueContainer = styled.div`
     text-overflow: ellipsis;
     max-width: 150px;
-    @media screen and (max-width: 500px) {
+    @media screen and (max-width: 600px) {
         max-width: 90px;
     }
     white-space: nowrap;
@@ -53,6 +53,9 @@ const AttributeValueContainer = styled.div`
 `;
 const AttributeUnitContainer = styled.div`
     margin-left: 0.22em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 `;
 const AttributeInnerDivContainer = styled.div`
   display: flex;
@@ -121,7 +124,7 @@ function intersperse(array, something) {
     var result = [], i = 0, l = array.length
     if (typeof something == 'function') {
         for (; i < l; i ++) {
-            if (i !== 0) { result.push(something()) }
+            if (i !== 0) { result.push(something(i)) }
             result.push(array[i])
         }
     }
@@ -144,7 +147,7 @@ class AttributeDisplay extends Component<AttributeDisplayProps> {
         const mapAttribute = (a: AttributeDescription, i) => <Attribute key={a.name + i} {...a}/>;
         const mapGroup = (group: AttributeGroup) => {
             return intersperse(group
-                .map(mapAttribute), () => <HalfDivider key={Math.random().toFixed(4)}/>)
+                .map(mapAttribute), (k) => <HalfDivider key={k*10}/>)
         };
         let filteredAttributes = attributes
             .map((attribute, i) => {
@@ -155,7 +158,7 @@ class AttributeDisplay extends Component<AttributeDisplayProps> {
                 }
             });
         if(filteredAttributes.length === 0) return null;
-        let items = intersperse(filteredAttributes, <Divider/>);
+        let items = intersperse(filteredAttributes, (k) => <Divider key={k*100}/>);
         return <Container>
             {items}
         </Container>;
