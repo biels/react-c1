@@ -190,14 +190,14 @@ class EntityView extends Component<EntityViewProps> {
                     const externalInitialValues = this.props.initialValues || {}
                     initialValues = entity.entityInfo.fields
                         .map(f => {
-                            if(externalInitialValues[f.name] != null) {
+                            if (externalInitialValues[f.name] != null) {
                                 // Copy relations
-                                if(f.type === EntityFieldType.relation) return {[f.name]: {connect: {id: externalInitialValues[f.name].id}}}
+                                if (f.type === EntityFieldType.relation) return {[f.name]: {connect: {id: externalInitialValues[f.name].id}}}
                                 // Copy value objects
                                 return {[f.name]: externalInitialValues[f.name]}
                             }
                             // Use defaults
-                            return (f.default != null ? {[f.name]: f.default} : {});
+                            return (f.default != null ? {[f.name]: (_.isFunction(f.default) ? f.default(): f.default) } : {});
                         })
                         .reduce((o1, o2) => Object.assign(o1, o2), {})
                     initialValues = {
@@ -209,8 +209,8 @@ class EntityView extends Component<EntityViewProps> {
                 }
                 let useOptimisticValues = this.optimisticValues != null && this.optimisticValuesId === _.get(entity, 'selectedItem.id', -1);
                 return <Form onSubmit={handleSubmit}
-                                                                   initialValues={useOptimisticValues ? this.optimisticValues : initialValues}
-                                                                   decorators={[focusOnErrors]}
+                             initialValues={useOptimisticValues ? this.optimisticValues : initialValues}
+                             decorators={[focusOnErrors]}
                 >
                     {(form) => {
                         if (this.props.onFormReady) this.props.onFormReady(form)
@@ -219,7 +219,8 @@ class EntityView extends Component<EntityViewProps> {
                             {d() && 'Associating: ' + JSON.stringify(Object.keys(associationValues))}
                             {d() && ' Values: ' + JSON.stringify(form.values)}
                             {(editing && !creating && form.valid) &&
-                            <FormAutoSave id={_.get(entity, 'selectedItem.id')} debounce={1200} form={form} save={handleSubmit as any}/>}
+                            <FormAutoSave id={_.get(entity, 'selectedItem.id')} debounce={1200} form={form}
+                                          save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
                             {/*<button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={false}>Hidden*/}
                             {/*submit*/}
