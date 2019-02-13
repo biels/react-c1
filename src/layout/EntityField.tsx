@@ -200,7 +200,7 @@ class EntityField extends Component<EntityFieldProps> {
                                         renderDetailView={({entity}) => {
                                             let C = entity.entityInfo.components.detail
                                             if(C == null) return <div>No detail component specfied on entity {entity.entityInfo.name}</div>;
-                                            return <C entity={entity}/>
+                                            return <C entity={entity} picker={true}/>
                                         }}
                                     >
                                         <Button name={field.name} text={getDisplayName(entity.entityInfo, selectedItem)}
