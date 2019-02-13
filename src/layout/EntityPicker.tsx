@@ -1,7 +1,8 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import styled from 'styled-components';
-import { Button, Dialog, Intent } from '@blueprintjs/core';
-import MasterDetailView, { MasterDetailViewProps } from './MasterDetailView';
+import * as _ from 'lodash';
+import {Button, Dialog, Intent} from '@blueprintjs/core';
+import MasterDetailView, {MasterDetailViewProps} from './MasterDetailView';
 import GenericDialog from "./GenericDialog";
 import {EntityInfoKey, Entity, EntityRenderProps} from 'react-entity-plane';
 
@@ -21,6 +22,8 @@ const PickerDetailContainer = styled.div`
 const PickerDetailFooterContainer = styled.div`
     display: grid;
     grid-template-columns: 1fr auto auto;
+    grid-gap: 8px;
+
 `;
 
 export interface EntityPickerProps {
@@ -31,7 +34,7 @@ export interface EntityPickerProps {
     isOpen: boolean
     onClose: () => void
     renderMasterView: MasterDetailViewProps['renderMasterView']
-    renderDetailView: MasterDetailViewProps['renderDetailView']
+    renderDetailView?: MasterDetailViewProps['renderDetailView']
 }
 
 class EntityPicker extends Component<EntityPickerProps> {
@@ -41,6 +44,7 @@ class EntityPicker extends Component<EntityPickerProps> {
     render() {
         return <Entity name={this.props.name} relation={this.props.relation}>
             {(entity: EntityRenderProps) => {
+                let display = entity.entityInfo.display;
                 const handleClose = () => {
                     this.props.onClose();
                 };
@@ -48,8 +52,9 @@ class EntityPicker extends Component<EntityPickerProps> {
                     this.props.onPick(item);
                 };
                 return <OuterContainer>
+                    {this.props.children}
                     <GenericDialog
-                        title={`Selecciona un element`}
+                        title={`Selecciona ${display.gender ? 'un' : 'una'} ${_.get(display, 'singular', 'element').toLowerCase()}`}
                         isOpen={this.props.isOpen} onClose={handleClose}>
                         <Container>
                             <MasterDetailView

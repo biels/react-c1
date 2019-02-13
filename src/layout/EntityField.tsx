@@ -10,9 +10,11 @@ import * as _ from "lodash";
 import {fieldDefaults} from "../defaults/fieldDefaults";
 import {getDisplayName} from "../page-templates/utils/getDisplayName";
 import moment from 'moment';
-import {EntityFieldType, FieldEnumValues} from "react-entity-plane/src/types/fieldsInfo";
+import {EntityFieldType, FieldEnumValues, RelationEntityFieldInfo} from "react-entity-plane/src/types/fieldsInfo";
 import {createNumberMask} from "text-mask-addons/dist/textMaskAddons";
 import {D} from "../page-templates/utils/debug";
+import EntityPicker from "./EntityPicker";
+
 const d = D('Entity Field')
 
 export interface EntityFieldProps {
@@ -24,6 +26,10 @@ export interface EntityFieldProps {
 }
 
 class EntityField extends Component<EntityFieldProps> {
+    state = {
+        dialogOpen: false
+    }
+
     render() {
         const {specificInfo, ...rest} = this.props;
         const name = specificInfo.name;
@@ -88,7 +94,7 @@ class EntityField extends Component<EntityFieldProps> {
                 return undefined;
             };
             return <FormField name={field.name} type={isBoolean ? 'checkbox' : undefined} parse={parse}
-                              format={format} validate={validate} allowNull={false} formatOnBlur={true} >
+                              format={format} validate={validate} allowNull={false} formatOnBlur={true}>
                 {({input: formInput, meta}) => {
                     let showInvalid = (meta.invalid && !this.props.creating) || (meta.invalid && (meta.touched || meta.submitError || meta.dirty));
                     let intent = (meta.error && showInvalid) ? Intent.DANGER : null;
@@ -97,16 +103,20 @@ class EntityField extends Component<EntityFieldProps> {
                         let helperText = [field.help, meta.error].join(' ');
                         let label = [field.label || field.name].join(' ');
                         return <FormGroup label={label} labelInfo={!field.required ? '(opcional)' : undefined}
-                                          helperText={helperText} intent={intent} disabled={this.props.disabled && false}>
+                                          helperText={helperText} intent={intent}
+                                          disabled={this.props.disabled && false}>
                             {input}
                         </FormGroup>;
                     }
                     let label = field.label || field.name;
                     if (field.type === EntityFieldType.boolean) {
-                        return renderFormGroup(formInput, <Switch {...formInput} name={field.name} checked={formInput.value} label={label}/>)
+                        return renderFormGroup(formInput, <Switch {...formInput} name={field.name}
+                                                                  checked={formInput.value} label={label}/>)
                     }
                     if (field.type === EntityFieldType.textarea) {
-                        return renderFormGroup(formInput, <TextArea style={{height: 220}} name={field.name} {...formInput} placeholder={label} fill={true}/>)
+                        return renderFormGroup(formInput, <TextArea style={{height: 220}}
+                                                                    name={field.name} {...formInput} placeholder={label}
+                                                                    fill={true}/>)
                     }
                     if (field.type === EntityFieldType.date) {
                         let format = 'DD/MM/YYYY';
@@ -132,8 +142,9 @@ class EntityField extends Component<EntityFieldProps> {
                         const selectedValue = values.find((v) => v.value === formInput.value) || emptyItem
                         const select = <Select items={values}
                                                filterable={values.length > 4}
-                                               noResults={<MenuItem disabled={true} text={`No hi ha valors definits`} />}
-                                               itemRenderer={(item, info) => <MenuItem key={item.value} onClick={info.handleClick as any}
+                                               noResults={<MenuItem disabled={true} text={`No hi ha valors definits`}/>}
+                                               itemRenderer={(item, info) => <MenuItem key={item.value}
+                                                                                       onClick={info.handleClick as any}
                                                                                        text={item.display || item.value}
                                                                                        icon={item.icon}
                                                                                        intent={item.intent}/>}
@@ -156,6 +167,7 @@ class EntityField extends Component<EntityFieldProps> {
                             return null;
                         }
                         if (relationInfo.type === 'multi') return null;
+
                         return <Entity name={relationInfo.entityName}>
                             {(entity) => {
                                 //console.log(`Entity`, entity);
@@ -167,35 +179,72 @@ class EntityField extends Component<EntityFieldProps> {
                                 let selectedItem = entity.items.find(it => it.id === id);
                                 //console.log(`id ${id}`, selectedItem);
                                 //console.log(`ActiveItem`, selectedItem);
-                                let select = <Select
-                                    items={entity.items}
-                                    itemRenderer={(item, info) => {
-                                        return <MenuItem key={item.id} onClick={info.handleClick as any} disabled={false}
-                                                         text={getDisplayName(entity.entityInfo, item)}/>;
-                                    }}
-                                    itemPredicate={(query, item: any) => {
-                                        let s = getDisplayName(entity.entityInfo, selectedItem).toLowerCase() + _.keys(item).map(k => (item[k] || '').toString().toLowerCase()).join('');
-                                        // console.log(`s`, s);
-                                        return (s).indexOf(query.toLowerCase()) >= 0
-                                    }}
-                                    onItemSelect={(item, event) => {
-                                        //console.log(`selected `, item);
-                                        //entity.selectId(item.id as any)
-                                        // Change to support different association formats
-                                        formInput.onChange({connect: {id: item.id}});
-                                    }}
-                                    noResults={<MenuItem key={-1} disabled={true} text={`No hi ha ${_.get(entity, 'entityInfo.display.plural', 'elements').toLowerCase()}`} />}
-                                    activeItem={selectedItem}
-                                    filterable={(entity.items ||[]).length > 5}
-                                    disabled={this.props.disabled}
-                                    popoverProps={{minimal: true}}
-                                >
-                                    <Button name={field.name} text={getDisplayName(entity.entityInfo, selectedItem)} rightIcon="double-caret-vertical"
-                                            icon={entity.entityInfo.display.icon} disabled={this.props.disabled}/>
-                                </Select>;
+                                let select: any;
+                                if ((field as RelationEntityFieldInfo).style === "picker") {
+                                    select = <EntityPicker
+                                        onPick={(item: any) => {
+                                            //console.log(`selected `, item);
+                                            //entity.selectId(item.id as any)
+                                            // Change to support different association formats
+                                            formInput.onChange({connect: {id: item.id}});
+                                            this.setState({dialogOpen: false})
+                                        }}
+                                        value={selectedItem}
+                                        isOpen={this.state.dialogOpen}
+                                        onClose={() => this.setState({dialogOpen: false})}
+                                        renderMasterView={({entity}) => {
+                                            let C = entity.entityInfo.components.master
+                                            if(C == null) return <div>No master component specfied on entity {entity.entityInfo.name}</div>;
+                                            return <C entity={entity}/>
+                                        }}
+                                        renderDetailView={({entity}) => {
+                                            let C = entity.entityInfo.components.detail
+                                            if(C == null) return <div>No detail component specfied on entity {entity.entityInfo.name}</div>;
+                                            return <C entity={entity}/>
+                                        }}
+                                    >
+                                        <Button name={field.name} text={getDisplayName(entity.entityInfo, selectedItem)}
+                                                rightIcon="selection"
+                                                icon={entity.entityInfo.display.icon} disabled={this.props.disabled}
+                                                onClick={() => this.setState({dialogOpen: true})}/>
+                                    </EntityPicker>;
+                                } else {
+                                    select = <Select
+                                        items={entity.items}
+                                        itemRenderer={(item, info) => {
+                                            return <MenuItem key={item.id} onClick={info.handleClick as any}
+                                                             disabled={false}
+                                                             text={getDisplayName(entity.entityInfo, item)}/>;
+                                        }}
+                                        itemPredicate={(query, item: any) => {
+                                            let s = getDisplayName(entity.entityInfo, selectedItem).toLowerCase() + _.keys(item).map(k => (item[k] || '').toString().toLowerCase()).join('');
+                                            // console.log(`s`, s);
+                                            return (s).indexOf(query.toLowerCase()) >= 0
+                                        }}
+                                        onItemSelect={(item, event) => {
+                                            //console.log(`selected `, item);
+                                            //entity.selectId(item.id as any)
+                                            // Change to support different association formats
+                                            formInput.onChange({connect: {id: item.id}});
+                                        }}
+                                        noResults={<MenuItem key={-1} disabled={true}
+                                                             text={`No hi ha ${_.get(entity, 'entityInfo.display.plural', 'elements').toLowerCase()}`}/>}
+                                        activeItem={selectedItem}
+                                        filterable={(entity.items || []).length > 5}
+                                        disabled={this.props.disabled}
+                                        popoverProps={{minimal: true}}
+                                    >
+                                        <Button name={field.name} text={getDisplayName(entity.entityInfo, selectedItem)}
+                                                rightIcon="double-caret-vertical"
+                                                icon={entity.entityInfo.display.icon} disabled={this.props.disabled}/>
+                                    </Select>;
+                                }
+
+
                                 return renderFormGroup(formInput, select)
                             }}
                         </Entity>
+
                     }
 
                     if (true) {
