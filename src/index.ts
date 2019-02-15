@@ -30,6 +30,7 @@ import Page from "./page-templates/Page";
 import {toaster} from "./application/toaster";
 import EntityView from "./layout/EntityView";
 import AttributeDisplay from "./page-templates/components/AttributeDisplay";
+import GenericDialog from "./layout/GenericDialog";
 
 export {
     ApplicationBody,
@@ -63,5 +64,6 @@ export {
     Placeholder,
     WIPComponent,
     AttributeDisplay,
+    GenericDialog,
     toaster
 }
