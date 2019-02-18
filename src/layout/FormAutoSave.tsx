@@ -31,7 +31,7 @@ export interface FormAutoSaveProps {
     debounce: number
     form: FormRenderProps
     save: (difference, form: FormApi) => any
-    id: any
+    id?: any
 }
 
 class FormAutoSave extends Component<FormAutoSaveProps, FormAutoSaveState> {

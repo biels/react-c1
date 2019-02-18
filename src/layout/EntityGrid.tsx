@@ -117,6 +117,7 @@ export interface EntityGridProps {
     associate?: { [entityName: string]: EntityRenderProps } | EntityRenderProps
     readOnly?: boolean
     params?
+    disableAutoAppend?: boolean
 }
 
 let gridId = 0;
@@ -325,6 +326,7 @@ class EntityGrid extends Component<EntityGridProps> {
                         // Process provided column defs
 
                         const getExtraColumns = (): AgGridColumnProps[] => {
+                            if(this.props.disableAutoAppend) return [];
                             // Defaults will be applied later
                             const allFieldNames = entity.entityInfo.fields.map(f => f.name);
                             const specifiedFieldNames = columnDefs.map(cd => cd.field);
@@ -391,6 +393,13 @@ class EntityGrid extends Component<EntityGridProps> {
                             if (field.type === EntityFieldType.enum) {
                                 //Enum field
                                 editable = false
+                            }
+                            if (field.type === EntityFieldType.number) {
+                                //Number field
+                                valueFormatter = ({value}) => {
+                                    if(value == null) return '';
+                                    return value.toFixed(1)
+                                }
                             }
                             return {
                                 headerName: field.label,
