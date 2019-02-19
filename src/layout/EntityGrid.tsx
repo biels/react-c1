@@ -398,7 +398,9 @@ class EntityGrid extends Component<EntityGridProps> {
                                 //Number field
                                 valueFormatter = ({value}) => {
                                     if(value == null) return '';
-                                    return value.toFixed(1)
+                                    let decimals = _.get(field, 'validation.decimals', null)
+                                    if(decimals != null) return value.toFixed(decimals)
+                                    return value
                                 }
                             }
                             return {
