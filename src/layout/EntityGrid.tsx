@@ -297,7 +297,8 @@ class EntityGrid extends Component<EntityGridProps> {
                         let providedActions = this.props.actions;
                         if (_.isFunction(providedActions)) providedActions = providedActions(entity);
                         let actions = providedActions.map(pa => {
-                            let foundAction = defaultActions.find(da => da.name === pa.name);
+                            let foundAction = defaultActions.find(da => pa.name === (da.name));
+                            if(foundAction == null) foundAction = defaultActions.find(da => pa.name.startsWith(da.name));
                             return Object.assign({}, foundAction, pa);
                         });
                         if(this.props.readOnly) actions = actions.filter(a => !['new', 'remove'].includes(a.name))
