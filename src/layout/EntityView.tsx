@@ -5,8 +5,8 @@ import {Action} from "../page-templates/components/PageHeader/components/ActionA
 import {FormApi} from "final-form";
 import EntityField from "./EntityField";
 import FormAutoSave from "./FormAutoSave";
-import {Entity, EntityContextProvider, EntityFieldInfo, EntityProps, EntityRenderProps} from 'react-entity-plane';
-import {EntityFieldType} from "react-entity-plane/src/types/fieldsInfo";
+import {Entity, EntityContextProvider, EntityProps, EntityRenderProps} from 'react-entity-plane';
+import {EntityFieldType, EntityFieldInfo} from "react-entity-plane/src/types/fieldsInfo";
 import createDecorator from 'final-form-focus'
 import {D} from "../page-templates/utils/debug";
 
@@ -51,6 +51,7 @@ export interface EntityViewProps {
     afterSubmit?: () => any
     transform?: (values) => object
     initialValues?
+    disableAutoAppend?: boolean
 }
 
 /**
@@ -90,7 +91,7 @@ class EntityView extends Component<EntityViewProps> {
             const renderWithWrapper = (inner, form?) => {
                 let inside = <EntityContextProvider rootEntityId={this.props.entity.selectedId}>
                     {inner}
-                    {renderExtraFields(form != null)}
+                    {!this.props.disableAutoAppend && renderExtraFields(form != null)}
                 </EntityContextProvider>;
                 if (this.props.wrapper != null) {
                     const Wrapper = this.props.wrapper
