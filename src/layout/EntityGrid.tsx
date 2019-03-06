@@ -340,8 +340,8 @@ class EntityGrid extends Component<EntityGridProps> {
                         // Apply defaults where not set
                         const getDefaultsForColumn = (fieldName): Partial<AgGridColumnProps> => {
                             let entityInfo = entity.entityInfo;
-                            const field = entityInfo.fields.find(f => f.name === fieldName)
-                            if (field == null) return {};
+                            const field = entityInfo.fields.find(f => _.get(f, 'name') === fieldName)
+                            if (field == null || fieldName == null) return {};
                             let cellEditor: AgGridColumnProps['cellEditor'] = 'agTextCellEditor';
                             let cellRenderer = null;
                             let cellRendererParams: any = {};
