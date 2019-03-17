@@ -56,7 +56,7 @@
     "react-test-renderer": "^16.8.1",
     "styled-components": "^4.1.3",
     "ts-jest": "^23.10.5",
-    "typescript": "^3.3.3"
+    "typescript": "^3.4.0-rc"
   },
   "dependencies": {
     "@blueprintjs/datetime": "^3.7.1",

@@ -5,10 +5,11 @@ import {Action} from "../page-templates/components/PageHeader/components/ActionA
 import {FormApi} from "final-form";
 import EntityField from "./EntityField";
 import FormAutoSave from "./FormAutoSave";
-import {Entity, EntityContextProvider, EntityProps, EntityRenderProps} from 'react-entity-plane';
-import {EntityFieldType, EntityFieldInfo} from "react-entity-plane/src/types/fieldsInfo";
+import {Entity, EntityContextProvider, EntityProps, EntityRenderProps, EntityFieldInfo, EntityFieldType} from 'react-entity-plane';
+
 import createDecorator from 'final-form-focus'
 import {D} from "../page-templates/utils/debug";
+import {BaseEntityFieldInfo} from 'react-entity-plane/src/types/fieldsInfo';
 
 const d = D('EntityView')
 const focusOnErrors = createDecorator(
@@ -28,7 +29,7 @@ interface FormWrapperRenderProps {
 
 type CRUDMode = 'viewing' | 'editing' | 'creating';
 
-export interface AutoFieldProps extends Partial<EntityFieldInfo> {
+export interface AutoFieldProps extends Partial<BaseEntityFieldInfo> {
 
 }
 
