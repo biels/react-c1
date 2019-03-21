@@ -29,6 +29,7 @@ export interface MasterDetailViewProps {
     renderDetailView: (renderProps: MasterDetailViewRenderProps) => any
     wrapperComponent?: ComponentType<any>
     allowMulti: boolean
+    masterOnly?: boolean
     params?
 }
 
@@ -45,7 +46,7 @@ class MasterDetailView extends Component<MasterDetailViewProps> {
                 // TODO Add master distinction here
                 return <Container>
                     {this.props.renderMasterView({ entity: masterEntity })}
-                    <Entity fetchPolicy={this.props.detailFetchPolicy || this.props.fetchPolicy} query={this.props.query} params={this.props.params} detail>
+                    {!this.props.masterOnly && <Entity fetchPolicy={this.props.detailFetchPolicy || this.props.fetchPolicy} query={this.props.query} params={this.props.params} detail>
                         {(detailEntity) => {
                             let display = detailEntity.entityInfo.display;
                             if(detailEntity.selectedItem == null){
@@ -55,9 +56,9 @@ class MasterDetailView extends Component<MasterDetailViewProps> {
                             if(!this.props.allowMulti && count > 1){
                                 return <NonIdealState title={`${count} ${display.plural.toLowerCase()}`} icon={(display.icon || "person") as any}/>
                             }
-                            return this.props.renderDetailView ? this.props.renderDetailView({ entity: detailEntity }) : null;
+                            return (this.props.renderDetailView) ? this.props.renderDetailView({ entity: detailEntity }) : null;
                         }}
-                    </Entity>
+                    </Entity>}
                 </Container>;
             }}
         </Entity>;
