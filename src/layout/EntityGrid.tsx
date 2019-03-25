@@ -118,6 +118,7 @@ export interface EntityGridProps {
     readOnly?: boolean
     params?
     disableAutoAppend?: boolean
+    autoSelect?: boolean | number | string
 }
 
 let gridId = 0;
@@ -206,7 +207,7 @@ class EntityGrid extends Component<EntityGridProps> {
                     style={{paddingLeft: 4}}>{getDisplayName(entityInfo, params.value)}</span></div>;
             },
             dateCellRenderer: (params: ICellRendererParams) => {
-                    if(params.value == null) return null;
+                if (params.value == null) return null;
                 return <div><Icon style={{color: '#A8B4BD'}} icon={'calendar'}/><span
                     style={{paddingLeft: 4}}>{formatDate(params.value)}</span></div>;
             }
@@ -234,6 +235,11 @@ class EntityGrid extends Component<EntityGridProps> {
                         if (entity.entityState.filter === undefined || entity.entityState.customFilter === undefined) {
                             entity.setEntityState({filter: ''}, false);
                         }
+                        if (this.props.autoSelect) {
+                            if (entity.items.length > 0 && entity.selectedItem == null) {
+                                entity.selectIndex(0)
+                            }
+                        }
                         let CreationComponent = _.get(entity.entityInfo, 'components.create');
 
                         const creationCallback = () => {
@@ -256,9 +262,7 @@ class EntityGrid extends Component<EntityGridProps> {
                             }
                         };
                         let display = entity.entityInfo.display;
-                        const defaultEditActions = [
-
-                        ]
+                        const defaultEditActions = []
                         const defaultActions = [
                             {
                                 name: 'refresh',
@@ -298,10 +302,10 @@ class EntityGrid extends Component<EntityGridProps> {
                         if (_.isFunction(providedActions)) providedActions = providedActions(entity);
                         let actions = providedActions.map(pa => {
                             let foundAction = defaultActions.find(da => pa.name === (da.name));
-                            if(foundAction == null) foundAction = defaultActions.find(da => pa.name.startsWith(da.name));
+                            if (foundAction == null) foundAction = defaultActions.find(da => pa.name.startsWith(da.name));
                             return Object.assign({}, foundAction, pa);
                         });
-                        if(this.props.readOnly) actions = actions.filter(a => !['new', 'remove'].includes(a.name))
+                        if (this.props.readOnly) actions = actions.filter(a => !['new', 'remove'].includes(a.name))
                         const isCreateImplemented: boolean = actions.map(a => a.name).includes('new')
 
                         const selectionActions: Action[] = [
@@ -327,7 +331,7 @@ class EntityGrid extends Component<EntityGridProps> {
                         // Process provided column defs
 
                         const getExtraColumns = (): AgGridColumnProps[] => {
-                            if(this.props.disableAutoAppend) return [];
+                            if (this.props.disableAutoAppend) return [];
                             // Defaults will be applied later
                             const allFieldNames = entity.entityInfo.fields.map(f => f.name);
                             const specifiedFieldNames = columnDefs.map(cd => cd.field);
@@ -353,7 +357,7 @@ class EntityGrid extends Component<EntityGridProps> {
                             let filterValueGetter: AgGridColumnProps['filterValueGetter'];
                             let editable = true;
                             let width;
-                            if (field.type === EntityFieldType.textarea){
+                            if (field.type === EntityFieldType.textarea) {
                                 cellEditor = 'agLargeTextCellEditor';
                                 width = 200;
                             }
@@ -398,9 +402,9 @@ class EntityGrid extends Component<EntityGridProps> {
                             if (field.type === EntityFieldType.number) {
                                 //Number field
                                 valueFormatter = ({value}) => {
-                                    if(value == null) return '';
+                                    if (value == null) return '';
                                     let decimals = _.get(field, 'validation.decimals', null)
-                                    if(decimals != null) return value.toFixed(decimals)
+                                    if (decimals != null) return value.toFixed(decimals)
                                     return value
                                 }
                             }
