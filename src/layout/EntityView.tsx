@@ -221,7 +221,7 @@ class EntityView extends Component<EntityViewProps> {
                             {d() && 'Associating: ' + JSON.stringify(Object.keys(associationValues))}
                             {d() && ' Values: ' + JSON.stringify(form.values)}
                             {(editing && !creating && form.valid) &&
-                            <FormAutoSave id={_.get(entity, 'selectedItem.id')} debounce={200} form={form}
+                            <FormAutoSave key={_.get(entity, 'selectedItem.id')} id={_.get(entity, 'selectedItem.id')} debounce={1200} form={form}
                                           save={handleSubmit as any}/>}
                             {renderWithWrapper(this.props.children(entity, mode, field(true), form), form)}
                             {/*<button type={'submit'} id={'submit-new-' + entity.entityInfo.name} hidden={false}>Hidden*/}

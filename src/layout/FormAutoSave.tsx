@@ -53,6 +53,7 @@ class FormAutoSave extends Component<FormAutoSaveProps, FormAutoSaveState> {
     componentWillUnmount(): void {
         // This could discard unsaved changes. Maybe force save here?
         this.save()
+        console.log(`Saving on unmount`);
         clearTimeout(this.timeout)
     }
 

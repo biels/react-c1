@@ -649,12 +649,10 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
         this.updateIn();
         if (this.gridApi == null) return;
         let gridStorageForGrid = _.get(gridStorage, this.props.entity.namespace)
-        console.log(`gridStorage`, gridStorage);
         if (gridStorageForGrid == null) return;
         let {gridFilterModel, gridSortModel} = gridStorageForGrid;
         this.gridApi.setFilterModel(gridFilterModel)
         this.gridApi.setSortModel(gridSortModel)
-        console.log(`2. Updated filter to `, gridFilterModel);
     }
 
     // TODO Timer based approach w/ modified flag?
