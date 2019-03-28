@@ -194,12 +194,14 @@ class EntityField extends Component<EntityFieldProps> {
                                         onClose={() => this.setState({dialogOpen: false})}
                                         renderMasterView={({entity}) => {
                                             let C = entity.entityInfo.components.master
-                                            if(C == null) return <div>No master component specfied on entity {entity.entityInfo.name}</div>;
+                                            if (C == null) return <div>No master component specfied on
+                                                entity {entity.entityInfo.name}</div>;
                                             return <C entity={entity}/>
                                         }}
                                         renderDetailView={({entity}) => {
                                             let C = entity.entityInfo.components.detail
-                                            if(C == null) return <div>No detail component specfied on entity {entity.entityInfo.name}</div>;
+                                            if (C == null) return <div>No detail component specfied on
+                                                entity {entity.entityInfo.name}</div>;
                                             return <C entity={entity} picker={true}/>
                                         }}
                                     >
@@ -210,11 +212,14 @@ class EntityField extends Component<EntityFieldProps> {
                                     </EntityPicker>;
                                 } else {
                                     select = <Select
-                                        items={entity.items}
+                                        items={[null, ...entity.items]}
                                         itemRenderer={(item, info) => {
-                                            return <MenuItem key={item.id} onClick={info.handleClick as any}
+                                            let displayName = '<Buit>';
+                                            if (item != null) displayName = getDisplayName(entity.entityInfo, item)
+                                            return <MenuItem key={(item || {id: -1}).id}
+                                                             onClick={info.handleClick as any}
                                                              disabled={false}
-                                                             text={getDisplayName(entity.entityInfo, item)}/>;
+                                                             text={displayName}/>;
                                         }}
                                         itemPredicate={(query, item: any) => {
                                             let s = getDisplayName(entity.entityInfo, selectedItem).toLowerCase() + _.keys(item).map(k => (item[k] || '').toString().toLowerCase()).join('');
@@ -225,7 +230,12 @@ class EntityField extends Component<EntityFieldProps> {
                                             //console.log(`selected `, item);
                                             //entity.selectId(item.id as any)
                                             // Change to support different association formats
-                                            formInput.onChange({connect: {id: item.id}});
+                                            if (item == null) {
+                                                formInput.onChange(null);
+                                            } else {
+                                                formInput.onChange({connect: {id: item.id}});
+
+                                            }
                                         }}
                                         noResults={<MenuItem key={-1} disabled={true}
                                                              text={`No hi ha ${_.get(entity, 'entityInfo.display.plural', 'elements').toLowerCase()}`}/>}

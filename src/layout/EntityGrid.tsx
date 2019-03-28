@@ -10,7 +10,9 @@ import Actions from '../page-templates/Actions/Actions';
 import {
     AgGridEvent, GridApi, RowClickedEvent, RowNode, RowSelectedEvent, ICellRendererParams, ICellRendererFunc,
     ICellRendererComp,
-    ValueGetterParams
+    ValueGetterParams,
+    SortChangedEvent,
+    FilterChangedEvent
 } from 'ag-grid-community';
 import ErrorBoundary from '../page-templates/ErrorBoundary';
 import GenericDialog from "./GenericDialog";
@@ -123,6 +125,8 @@ export interface EntityGridProps {
 
 let gridId = 0;
 
+
+let gridStorage = {}
 
 class EntityGrid extends Component<EntityGridProps> {
     static defaultProps: Partial<EntityGridProps> = {
@@ -611,7 +615,7 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
         setTimeout(() => {
             this.blocked = false;
             callback();
-        }, 110);
+        }, 10);
     };
     handleGridReady = (params) => {
         this.gridApi = params.api;
@@ -641,7 +645,16 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
         // this.updates = this.updates + 1;
         // console.log(`Grid wrapper updated ${this.updates} times`);
         if (this.isBlocked()) return;
+
         this.updateIn();
+        if (this.gridApi == null) return;
+        let gridStorageForGrid = _.get(gridStorage, this.props.entity.namespace)
+        console.log(`gridStorage`, gridStorage);
+        if (gridStorageForGrid == null) return;
+        let {gridFilterModel, gridSortModel} = gridStorageForGrid;
+        this.gridApi.setFilterModel(gridFilterModel)
+        this.gridApi.setSortModel(gridSortModel)
+        console.log(`2. Updated filter to `, gridFilterModel);
     }
 
     // TODO Timer based approach w/ modified flag?
@@ -685,6 +698,7 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
             if (newSelectedIds.length === 1) this.gridApi.ensureNodeVisible((n) => n.data.id === newSelectedIds[0], null);
         }
 
+
         //this.updatingFromOutside = false;
 
         // console.log(`Removed: ${removed.toString()}, added: ${added.toString()} (current ${currentlySelectedIds},
@@ -696,11 +710,17 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
     updateOut = (singleId) => {
         // console.log(`Updating OUT`);
         // Set entity selection based on nodes
+
         if (this.isBlocked()) {
             console.log(`Avoiding updating entity while blocked...`);
             return;
         }
         if (this.gridApi == null) return;
+
+        let gridFilterModel = this.gridApi.getFilterModel();
+        let gridSortModel = this.gridApi.getSortModel();
+        this.props.entity.setEntityState({gridFilterModel, gridSortModel}, false)
+
         const ids = this.gridApi.getSelectedNodes().map((node, index) => node.data.id);
         this.props.entity.selectIds(ids, singleId, true);
         // setTimeout(() => {
@@ -722,6 +742,12 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
         this.blocked = false;
     };
 
+    saveGridState = () => {
+        let gridFilterModel = this.gridApi.getFilterModel();
+        let gridSortModel = this.gridApi.getSortModel();
+        _.set(gridStorage, this.props.entity.namespace, {gridFilterModel, gridSortModel, hi: 'hello'})
+    }
+
     render() {
         return (
             <AgGridReact
@@ -736,6 +762,7 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
 
                 }}
                 onRowSelected={(e: RowSelectedEvent) => {
+                    //TODO Change for onclick and simulate select
                     this.modifiedLocally = true;
                     this.touched.push(e.data.id);
                     if (this.isBlocked()) return;
@@ -745,6 +772,15 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
                     // let ids = this.gridApi.getSelectedNodes().map(node => _.get(node.data, 'id'));
                     // this.props.entity.selectIds(ids, true);
                 }}
+                onSortChanged={(e: SortChangedEvent) => {
+                    this.saveGridState()
+                    // console.log(`1. Sort State is  `, gridStorage);
+                }}
+                onFilterChanged={(e: FilterChangedEvent) => {
+                    this.saveGridState()
+                    // console.log(`1. Filter State is  `, gridStorage);
+                }}
+
                 {...this.props}
                 onGridReady={this.handleGridReady}
             />
