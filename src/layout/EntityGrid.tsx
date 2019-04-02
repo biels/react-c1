@@ -12,7 +12,9 @@ import {
     ICellRendererComp,
     ValueGetterParams,
     SortChangedEvent,
-    FilterChangedEvent
+    FilterChangedEvent,
+    RowEditingStoppedEvent,
+    ValueSetterParams
 } from 'ag-grid-community';
 import ErrorBoundary from '../page-templates/ErrorBoundary';
 import GenericDialog from "./GenericDialog";
@@ -361,6 +363,11 @@ class EntityGrid extends Component<EntityGridProps> {
                             let filterValueGetter: AgGridColumnProps['filterValueGetter'];
                             let editable = true;
                             let width;
+                            valueSetter = (params: ValueSetterParams) => {
+                                let fieldName = params.column.getColDef().field;
+                                entity.updateId(params.data.id, {[fieldName]: params.newValue})
+                            }
+
                             if (field.type === EntityFieldType.textarea) {
                                 cellEditor = 'agLargeTextCellEditor';
                                 width = 200;
@@ -777,6 +784,9 @@ class EntityGridInternalWrapper extends Component<EntityGridInternalWrapperProps
                 onFilterChanged={(e: FilterChangedEvent) => {
                     this.saveGridState()
                     // console.log(`1. Filter State is  `, gridStorage);
+                }}
+                onRowEditingStopped={(e: RowEditingStoppedEvent) => {
+
                 }}
 
                 {...this.props}
