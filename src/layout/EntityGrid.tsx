@@ -14,17 +14,19 @@ import {
     SortChangedEvent,
     FilterChangedEvent,
     RowEditingStoppedEvent,
-    ValueSetterParams
+    ValueSetterParams,
+    ICellEditorParams
 } from 'ag-grid-community';
 import ErrorBoundary from '../page-templates/ErrorBoundary';
 import GenericDialog from "./GenericDialog";
 import {toaster} from "../index";
 import {Entity, EntityFieldType, EntityInfoKey, EntityProps, EntityRenderProps} from 'react-entity-plane';
 import {getDisplayName} from "../page-templates/utils/getDisplayName";
-import {ICellRendererReactComp} from "ag-grid-react/lib/interfaces";
+import {ICellEditorReactComp, ICellRendererReactComp} from "ag-grid-react/lib/interfaces";
 import {EntityInfo} from 'react-entity-plane/src/types/entities';
 import {parseDate, formatDate} from "../page-templates/utils/dateUtils";
 import {FormRenderProps} from "react-final-form";
+import NumericCellEditor from "./grid/NumericCellEditor";
 
 // const OldContainer = styled.div`
 //     height: 100%;
@@ -216,7 +218,8 @@ class EntityGrid extends Component<EntityGridProps> {
                 if (params.value == null) return null;
                 return <div><Icon style={{color: '#A8B4BD'}} icon={'calendar'}/><span
                     style={{paddingLeft: 4}}>{formatDate(params.value)}</span></div>;
-            }
+            },
+            numericCellEditor: NumericCellEditor
         }
     }
     // shouldComponentUpdate(newProps, newState) {
@@ -364,8 +367,11 @@ class EntityGrid extends Component<EntityGridProps> {
                             let editable = true;
                             let width;
                             valueSetter = (params: ValueSetterParams) => {
+                                if (params.oldValue===params.newValue) return false
                                 let fieldName = params.column.getColDef().field;
+                                params.data[fieldName] = params.newValue
                                 entity.updateId(params.data.id, {[fieldName]: params.newValue})
+                                return true;
                             }
 
                             if (field.type === EntityFieldType.textarea) {
@@ -418,6 +424,7 @@ class EntityGrid extends Component<EntityGridProps> {
                                     if (decimals != null) return value.toFixed(decimals)
                                     return value
                                 }
+                                cellEditor = 'numericCellEditor'
                             }
                             return {
                                 headerName: field.label,
